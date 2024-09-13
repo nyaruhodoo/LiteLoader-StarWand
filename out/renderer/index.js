@@ -1,6 +1,6 @@
 const p = {
   test: !1
-}, d = 4, g = "extension", f = "liteloader-napcatcore-template", a = "liteloader-napcatcore-template", m = "LiteLoaderQQNT的插件模板", y = "0.0.1", h = [
+}, d = 4, g = "extension", f = "星之杖", a = "liteloader-star-wand", y = "你相信魔法吗", m = "0.0.1", h = [
   {
     name: "Nyaruhodo",
     link: "https://github.com/nyaruhodoo"
@@ -18,8 +18,8 @@ const p = {
   type: g,
   name: f,
   slug: a,
-  description: m,
-  version: y,
+  description: y,
+  version: m,
   authors: h,
   dependencies: w,
   platform: C,
@@ -201,7 +201,7 @@ const x = (s) => [
   });
   return t;
 };
-class T extends HTMLElement {
+class M extends HTMLElement {
   async connectedCallback() {
     const n = this.attachShadow({ mode: "open" }), t = document.createElement("link");
     t.rel = "stylesheet", t.href = S, n.append(t);
@@ -211,10 +211,10 @@ class T extends HTMLElement {
     n.append(...L(e));
   }
 }
-customElements.define(a, T);
-const M = (s) => {
+customElements.define(a, M);
+const O = (s) => {
   s.innerHTML = `<${a}></${a}>`;
 };
 export {
-  M as onSettingWindowCreated
+  O as onSettingWindowCreated
 };

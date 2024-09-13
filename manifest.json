@@ -1,9 +1,9 @@
 {
   "manifest_version": 4,
   "type": "extension",
-  "name": "liteloader-napcatcore-template",
-  "slug": "liteloader-napcatcore-template",
-  "description": "LiteLoaderQQNT的插件模板",
+  "name": "星之杖",
+  "slug": "liteloader-star-wand",
+  "description": "你相信魔法吗",
   "version": "0.0.1",
   "authors": [
     {
@@ -11,11 +11,17 @@
       "link": "https://github.com/nyaruhodoo"
     }
   ],
+  "repository": {
+    "repo": "nyaruhodoo/LiteLoader-StarWand",
+    "branch": "master"
+  },
   "dependencies": [],
   "platform": ["win32", "linux", "darwin"],
   "injects": {
     "renderer": "./out/renderer/index.js",
     "main": "./out/main/index.js",
     "preload": "./out/preload/index.js"
-  }
+  },
+  "icon": "./icon.gif",
+  "thumb": "./thumb.svg"
 }

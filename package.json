@@ -1,7 +1,7 @@
 {
-  "name": "liteloader-napcatcore-template",
+  "name": "liteloader-star-wand",
   "version": "0.0.1",
-  "description": "个人自用插件开发模板",
+  "description": "你相信魔法吗",
   "main": "./out/main/index.js",
   "author": "nyaruhodoo",
   "scripts": {
