@@ -10,6 +10,7 @@ let NodeIQQNTWrapperSession: NodeIQQNTWrapperSession | undefined
 let NTWrapperNodeApi: NTWrapperNodeApi | undefined
 export let NTcore: NTCoreWrapper | undefined
 export const wrapperEmitter = new EventEmitter()
+export const listenerMap = new Map<string, Record<string, (...any) => any>>()
 
 /**
  * 用于避免多次调用 getService 造成的打印
@@ -91,6 +92,7 @@ const hookInstance = ({ instance, rootKey }: { instance: Record<string, any>; ro
             instance: args[0],
             rootKey: key
           })
+          listenerMap.set(key, args[0])
         }
 
         // hook args

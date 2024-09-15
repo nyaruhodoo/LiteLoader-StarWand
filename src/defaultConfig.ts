@@ -1,7 +1,8 @@
 export interface ConfigType {
-  test: boolean
+  // 干哦，我真不关心你什么类型
+  theme: [number, Record<any, any>, null, null, Record<any, any>] | null
 }
 
 export const defaultConfig: ConfigType = {
-  test: false
+  theme: null
 }

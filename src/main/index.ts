@@ -1,15 +1,14 @@
 import { hookWrapper } from '@/main/hook/hookWrapper'
 import { EventEnum } from './enum/eventEnum'
+import { vipEventInterceptors } from './hookVIP/hookVIP'
+import { themeEventInterceptors } from './hookTheme/hookTheme'
 ;(async () => {
   await hookWrapper({
     log: false,
     eventBlacklist: [EventEnum.sendLog, /tianshu/i],
-    eventInterceptors: {}
+    eventInterceptors: {
+      ...vipEventInterceptors,
+      ...themeEventInterceptors
+    }
   })
 })()
-
-// Hook IPC 必须在 onBrowserWindowCreated 中调用
-// exports.onBrowserWindowCreated = (window: Electron.CrossProcessExports.BrowserWindow) => {
-//   // window 为 Electron 的 BrowserWindow 实例
-//   hookIPC(window)
-// }

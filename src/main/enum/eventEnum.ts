@@ -16,6 +16,23 @@ export const enum EventEnum {
   // 广告?
   requestTianshuAdv = 'NodeIQQNTWrapperSession/create/getMsgService/requestTianshuAdv',
 
+  // 获取个人信息
+  onProfileSimpleChanged = 'NodeIQQNTWrapperSession/create/getProfileService/addKernelProfileListener/onProfileSimpleChanged',
+  fetchUserDetailInfo = 'NodeIQQNTWrapperSession/create/getProfileService/fetchUserDetailInfo',
+  onUserDetailInfoChanged = 'NodeIQQNTWrapperSession/create/getProfileService/addKernelProfileListener/onUserDetailInfoChanged',
+  getVasInfo = 'NodeIQQNTWrapperSession/create/getProfileService/getVasInfo',
+
+  // 设置主题，主要用于保存
+  setThemeInfo = 'NodeIQQNTWrapperSession/create/getSkinService/setThemeInfo',
+  // 真正设置主题的函数
+  onThemeInfoChange = 'NodeIQQNTWrapperSession/create/getSkinService/addKernelSkinListener/onThemeInfoChange',
+  // 能拿到颜色配置
+  previewTheme = 'NodeIQQNTWrapperSession/create/getSkinService/previewTheme',
+  // 获取全部主题
+  getSystemThemePackageList = 'NodeIQQNTWrapperSession/create/getSkinService/getSystemThemePackageList',
+  // 获取可DIY的其他主题
+  getTemplateThemeList = 'NodeIQQNTWrapperSession/create/getSkinService/getTemplateThemeList',
+
   //----------------- * IPC 部分 * -----------------
 
   // 收到新消息(只会收到已激活窗口消息)

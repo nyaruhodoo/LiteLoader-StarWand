@@ -1,29 +1,35 @@
 const p = {
-  test: !1
-}, d = 4, g = "extension", f = "星之杖", a = "liteloader-star-wand", y = "你相信魔法吗", m = "0.0.1", h = [
+  theme: null
+}, d = 4, g = "extension", f = "星之杖", a = "liteloader-star-wand", m = "你相信魔法吗", y = "0.0.1", h = [
   {
     name: "Nyaruhodo",
     link: "https://github.com/nyaruhodoo"
   }
-], w = [], C = [
+], w = {
+  repo: "nyaruhodoo/LiteLoader-StarWand",
+  branch: "master"
+}, C = [], v = [
   "win32",
   "linux",
   "darwin"
-], v = {
+], x = {
   renderer: "./out/renderer/index.js",
   main: "./out/main/index.js",
   preload: "./out/preload/index.js"
-}, u = {
+}, b = "./icon.gif", E = "./thumb.svg", u = {
   manifest_version: d,
   type: g,
   name: f,
   slug: a,
-  description: y,
-  version: m,
+  description: m,
+  version: y,
   authors: h,
-  dependencies: w,
-  platform: C,
-  injects: v
+  repository: w,
+  dependencies: C,
+  platform: v,
+  injects: x,
+  icon: b,
+  thumb: E
 };
 class c {
   /**
@@ -115,7 +121,7 @@ class c {
     }
   }
 }
-const x = (s) => [
+const k = (s) => [
   {
     title: "配置标题",
     foldTitle: "123",
@@ -129,7 +135,7 @@ const x = (s) => [
       }
     ]
   }
-], E = ({
+], L = ({
   config: s,
   update: n
 }) => {
@@ -138,7 +144,7 @@ const x = (s) => [
     const e = s.customStoreFormat ? s.customStoreFormat(t.value) : t.value;
     n(s.keyPath, e);
   }), t;
-}, b = ({
+}, S = ({
   config: s,
   update: n
 }) => {
@@ -147,7 +153,7 @@ const x = (s) => [
     const e = t.hasAttribute("is-active");
     t.toggleAttribute("is-active"), n(s.keyPath, !e);
   }), t;
-}, k = (s, n) => {
+}, A = (s, n) => {
   const t = document.createElement("setting-item");
   t.setAttribute("data-direction", "row"), t.innerHTML = '<div class="setting-item-text"></div>';
   {
@@ -162,13 +168,13 @@ const x = (s) => [
     const i = c.setProperty.bind(null, n);
     switch (s.type) {
       case "setting-switch":
-        e = b({
+        e = S({
           config: s,
           update: i
         });
         break;
       case "input":
-        e = E({
+        e = L({
           config: s,
           update: i
         });
@@ -179,7 +185,7 @@ const x = (s) => [
     t.append(e);
   }
   return t;
-}, L = (s) => x(s).map(({ title: t, list: e, foldTitle: i }) => {
+}, P = (s) => k(s).map(({ title: t, list: e, foldTitle: i }) => {
   const o = document.createElement("setting-section");
   t && o.setAttribute("data-title", t), o.innerHTML = `
       <setting-panel>
@@ -189,9 +195,9 @@ const x = (s) => [
   const r = o.querySelector("setting-list");
   i && (r?.setAttribute("is-collapsible", "true"), r?.setAttribute("data-title", i));
   for (const l of e)
-    r?.append(k(l, s));
+    r?.append(A(l, s));
   return o;
-}), S = "" + new URL("index.css", import.meta.url).href, A = window[a], P = async (s) => {
+}), M = "" + new URL("index.css", import.meta.url).href, O = window[a], T = async (s) => {
   const n = await c.getConfig(), t = c.createDeepProxy(n, {
     set(e, i, o) {
       e[i] = o;
@@ -201,20 +207,20 @@ const x = (s) => [
   });
   return t;
 };
-class M extends HTMLElement {
+class j extends HTMLElement {
   async connectedCallback() {
     const n = this.attachShadow({ mode: "open" }), t = document.createElement("link");
-    t.rel = "stylesheet", t.href = S, n.append(t);
-    const e = await P((i) => {
-      A.configUpdate(i), new BroadcastChannel(a).postMessage(i);
+    t.rel = "stylesheet", t.href = M, n.append(t);
+    const e = await T((i) => {
+      O.configUpdate(i), new BroadcastChannel(a).postMessage(i);
     });
-    n.append(...L(e));
+    n.append(...P(e));
   }
 }
-customElements.define(a, M);
-const O = (s) => {
+customElements.define(a, j);
+const H = (s) => {
   s.innerHTML = `<${a}></${a}>`;
 };
 export {
-  O as onSettingWindowCreated
+  H as onSettingWindowCreated
 };
