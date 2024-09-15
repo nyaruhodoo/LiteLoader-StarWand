@@ -1,16 +1,26 @@
+import { inspect } from 'node:util'
 import { EventEnum } from '../enum/eventEnum'
 import type { SimpleInfo, UserDetailInfoResponseType, UserInfo, VasInfo } from './userInfo'
 // import { inspect } from 'node:util'
 
 const fixVasInfo = (vasInfo: VasInfo) => {
-  vasInfo.vipStartFlag = 1
-  vasInfo.vipDataFlag = 1
+  // 作用不知道
+  vasInfo.vipStartFlag = 0
+  vasInfo.vipDataFlag = 0
+
+  // 有这几个就够了
   vasInfo.vipFlag = true
   vasInfo.svipFlag = true
   vasInfo.yearVipFlag = true
   vasInfo.vipLevel = 10
-  vasInfo.bigClub = true
-  vasInfo.bigClubLevel = 10 // 懒得处理了
+
+  // 从群中产里抓的数据，凑活用吧
+  vasInfo.nameplateVipType = 258
+  vasInfo.superVipTemplateId = 20471
+  vasInfo.pendantId = 104493
+  vasInfo.vipDataFlag = 107
+  vasInfo.vipNameColorId = '6'
+
   vasInfo.privilegeIcon.openIconList = []
   vasInfo.privilegeIcon.closeIconList = []
 
@@ -36,6 +46,13 @@ export const vipEventInterceptors = {
 
   // 反正很多地方会触发
   [EventEnum.onUserDetailInfoChanged]([userInfo]: [UserInfo]) {
+    // console.log(
+    //   inspect(userInfo, {
+    //     depth: null,
+    //     colors: true
+    //   })
+    // )
+
     const uid = getUid()
     if (userInfo.uid !== uid) return
     userInfo.simpleInfo.vasInfo = fixVasInfo(userInfo.simpleInfo.vasInfo)
