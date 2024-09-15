@@ -1,4 +1,4 @@
-import { inspect } from 'node:util'
+// import { inspect } from 'node:util'
 import { EventEnum } from '../enum/eventEnum'
 import type { SimpleInfo, UserDetailInfoResponseType, UserInfo, VasInfo } from './userInfo'
 // import { inspect } from 'node:util'
