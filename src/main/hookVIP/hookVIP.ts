@@ -34,8 +34,10 @@ export const vipEventInterceptors = {
     return responseData
   },
 
-  // 设置页会取这里的值
+  // 反正很多地方会触发
   [EventEnum.onUserDetailInfoChanged]([userInfo]: [UserInfo]) {
+    const uid = getUid()
+    if (userInfo.uid !== uid) return
     userInfo.simpleInfo.vasInfo = fixVasInfo(userInfo.simpleInfo.vasInfo)
   },
 
