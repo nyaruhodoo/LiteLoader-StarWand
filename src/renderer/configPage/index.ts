@@ -1,32 +1,12 @@
-import type { ConfigType } from '@/defaultConfig'
-import type { ContextBridgeApiType } from '@/types/contextBridge'
-import { Utils } from '@/utils'
 import { slug } from '@/manifest'
-import { createConfigViewList } from './createConfigViewList'
 import styleUrl from './index.scss?url'
-
-const contextBridgeApi: ContextBridgeApiType = window[slug]
-
-/**
- * 生成响应式配置对象
- */
-const createResponsiveConfig = async (onUpdate?: (responsiveConfig: ConfigType) => void) => {
-  const config = await Utils.getConfig()
-  const responsiveConfig = Utils.createDeepProxy<ConfigType>(config, {
-    set(target, prop, val) {
-      target[prop as string] = val
-      // 走ipc不能传递proxy对象
-      const copyConfig = JSON.parse(JSON.stringify(responsiveConfig))
-      Utils.updateConfig(copyConfig)
-      onUpdate?.(copyConfig)
-      return true
-    }
-  })
-  return responsiveConfig
-}
+import movileUrl from './movie.mp4?url'
 
 class ConfigElement extends HTMLElement {
   async connectedCallback() {
+    const liteloader = document.querySelector('.setting-main') as HTMLDivElement
+    liteloader.style.backgroundColor = 'black'
+
     const shadow = this.attachShadow({ mode: 'open' })
 
     // CSS
@@ -35,16 +15,29 @@ class ConfigElement extends HTMLElement {
     linkEl.href = styleUrl
     shadow.append(linkEl)
 
-    // 添加页面
-    const responsiveConfig = await createResponsiveConfig((config) => {
-      // 每次配置更新后通知主线程和渲染线程
-      contextBridgeApi.configUpdate(config)
+    const video = document.createElement('video')
+    video.src = movileUrl
+    video.loop = true
+    video.volume = 0.05
+    const p = document.createElement('p')
+    p.innerHTML = `闇の力を秘めし键よ、真の姿を我の前に示せ、契约のもとさくらが命じる、レリーズ！`
 
-      // BroadcastChannel 用于通知渲染层
-      const bc = new BroadcastChannel(slug)
-      bc.postMessage(config)
+    shadow.append(video, p)
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          video.play()
+          const liteloader = document.querySelector('.setting-main') as HTMLDivElement
+          liteloader.style.backgroundColor = 'black'
+        } else {
+          video.pause()
+          const liteloader = document.querySelector('.setting-main') as HTMLDivElement
+          liteloader.style.backgroundColor = 'transparent'
+        }
+      })
     })
-    shadow.append(...createConfigViewList(responsiveConfig))
+    observer.observe(video)
   }
 }
 customElements.define(slug, ConfigElement)

@@ -28,7 +28,7 @@ let hookConfig: hookWarpperConfigType | undefined
 const logFn = ({ argArray, ret, key }: { argArray: any[]; ret: any; key: string }) => {
   if ((key.endsWith('Service') && serviceMap.has(key)) || !hookConfig?.log) return
   key.endsWith('Service') && serviceMap.set(key, true)
-  const depth: number | null = 2
+  const depth: number | null = null
 
   console.log('-----------------------------------------------')
   console.log(`${key} 被调用`)

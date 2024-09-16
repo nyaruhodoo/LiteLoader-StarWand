@@ -1,14 +1,13 @@
-input {
-  min-width: 5em;
-  line-height: 24px;
-  border-radius: 4px;
-  text-align: center;
-  padding: 0 4px;
-  border: 1px solid var(--border_dark);
+video {
+  width: 100%;
+  border-radius: 16px;
+}
 
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+p {
+  margin-top: 8rem;
+  font-size: 1.5rem;
+  text-align: center;
+  background: linear-gradient(to bottom right, #ff69b4, #ffc0cb, #dcdcdc);
+  background-clip: text;
+  color: transparent;
 }
