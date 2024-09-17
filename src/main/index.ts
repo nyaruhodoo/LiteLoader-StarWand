@@ -9,8 +9,8 @@ import { videoFileEventInterceptors } from './hookVideoFile'
     eventBlacklist: [EventEnum.sendLog, /tianshu/i],
     eventInterceptors: {
       ...vipEventInterceptors,
-      ...themeEventInterceptors,
-      ...videoFileEventInterceptors
+      ...themeEventInterceptors
+      // ...videoFileEventInterceptors
     }
   })
 })()
