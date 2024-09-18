@@ -37,7 +37,8 @@ export default defineConfig({
         // FIX: 使用函数返回可以避免生成非mjs后缀
         fileName: () => 'index.js'
       },
-      minify: 'esbuild'
+      minify: 'esbuild',
+      assetsInlineLimit: 4096
     }
   }
 })

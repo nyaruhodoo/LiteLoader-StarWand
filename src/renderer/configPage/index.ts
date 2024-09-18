@@ -1,6 +1,5 @@
 import { slug } from '@/manifest'
 import styleUrl from './index.scss?url'
-import movileUrl from './movie.mp4?url'
 
 class ConfigElement extends HTMLElement {
   async connectedCallback() {
@@ -16,7 +15,8 @@ class ConfigElement extends HTMLElement {
     shadow.append(linkEl)
 
     const video = document.createElement('video')
-    video.src = movileUrl
+    // 麻了麻了，直接引入会给我换成base64
+    video.src = `${LiteLoader.plugins[slug].path.plugin}\\assets\\movie.mp4`
     video.loop = true
     video.volume = 0.05
     const p = document.createElement('p')
