@@ -4,8 +4,9 @@ video {
 }
 
 p {
-  margin-top: 8rem;
-  font-size: 1.5rem;
+  font-family: 'my-font' !important;
+  margin: 8rem 4rem 0;
+  font-size: 1.8rem;
   text-align: center;
   background: linear-gradient(to bottom right, #ff69b4, #ffc0cb, #fff);
   background-clip: text;

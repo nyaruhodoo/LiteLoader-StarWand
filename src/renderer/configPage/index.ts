@@ -1,10 +1,17 @@
 import { slug } from '@/manifest'
 import styleUrl from './index.scss?url'
+import fontUrl from './font.scss?url'
 
 class ConfigElement extends HTMLElement {
   async connectedCallback() {
     const liteloader = document.querySelector('.setting-main') as HTMLDivElement
     liteloader.style.backgroundColor = 'black'
+
+    // font
+    const fontEl = document.createElement('link')
+    fontEl.rel = 'stylesheet'
+    fontEl.href = fontUrl
+    document.head.append(fontEl)
 
     const shadow = this.attachShadow({ mode: 'open' })
 
@@ -20,7 +27,7 @@ class ConfigElement extends HTMLElement {
     video.loop = true
     video.volume = 0.05
     const p = document.createElement('p')
-    p.innerHTML = `闇の力を秘めし键よ、真の姿を我の前に示せ、契约のもとさくらが命じる、レリーズ！`
+    p.innerHTML = `星の力を秘めしかぎよ、真の姿を我の前に示せ、けいやくのもとさくらが命じる、レリーズ！`
 
     shadow.append(video, p)
 
