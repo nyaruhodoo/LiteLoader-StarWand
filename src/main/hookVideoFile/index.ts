@@ -108,7 +108,7 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   // console.log('魔改的的视频数据')
   // console.log(inspect(sendMsg, { depth: null, colors: true }))
 
-  NTcore?.session.getMsgService().sendMsg(...sendMsg)
+  return NTcore?.session.getMsgService().sendMsg(...sendMsg)
 }
 
 export const videoFileEventInterceptors = {
@@ -116,6 +116,7 @@ export const videoFileEventInterceptors = {
     if (sendMsg[2][0].elementType !== ElementType.FILE) return sendMsg
     const { filePath } = (sendMsg[2][0] as SendFileElement).fileElement
     if (!Utils.isVideoFile(filePath)) return sendMsg
-    return file2Video(sendMsg)
+    file2Video(sendMsg)
+    throw new Error('喵喵喵')
   }
 }
