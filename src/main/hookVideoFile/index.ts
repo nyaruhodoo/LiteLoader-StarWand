@@ -84,7 +84,7 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   await Promise.all([copyFile(filePath, uploadPath), Utils.checkFileExists(oldThumbPath)])
 
   const newThumbPath = videoPath2ThumbPath(uploadPath)
-  copyFile(oldThumbPath, newThumbPath)
+  await copyFile(oldThumbPath, newThumbPath)
 
   const thumbPath = new Map()
   thumbPath.set(0, newThumbPath)
