@@ -74,6 +74,7 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   /**
    * 一个视频可以成功发送的前提是，该文件处于 C:\Users\Administrator\Documents\Tencent Files\uid\nt_qq\nt_data\Video\xxxx-xx\Ori
    * 封面和上面一样只不过是 Thumb 目录
+   * 或许直接改 downloadRichMedia 的参数指向原路径会更简单？
    */
   const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName)
 
