@@ -121,15 +121,19 @@ export const themeEventInterceptors = {
   },
   [EventEnum.onThemeInfoChange](params: ThemeInfoChangeParams) {
     // 怎么想都感觉不是很合适，但除此之外没有其他同步的方案了/(ㄒoㄒ)/~~
-    const config: ConfigType = JSON.parse(readFileSync(`${LiteLoader.plugins[slug].path.data}/config.json`, 'utf8'))
-    if (!config.theme) return
-    const configThemeId = config.theme[0]
+    try {
+      const config: ConfigType = JSON.parse(readFileSync(`${LiteLoader.plugins[slug].path.data}/config.json`, 'utf8'))
+      if (!config.theme) return
+      const configThemeId = config.theme[0]
 
-    if (params[0] !== configThemeId) {
-      config.theme[4] = convertMapAndObject(config.theme[4])
-      return config.theme
+      if (params[0] !== configThemeId) {
+        config.theme[4] = convertMapAndObject(config.theme[4])
+        return config.theme
+      }
+
+      return params
+    } catch (error) {
+      console.log(error)
     }
-
-    return params
   }
 }
