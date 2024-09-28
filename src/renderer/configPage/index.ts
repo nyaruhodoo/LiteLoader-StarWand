@@ -22,31 +22,32 @@ class ConfigElement extends HTMLElement {
     linkEl.href = styleUrl
     shadow.append(linkEl)
 
-    const video = document.createElement('video')
-    // 麻了麻了，直接引入会给我换成base64
-    // video.src = `${LiteLoader.plugins[slug].path.plugin}/assets/movie.mp4`
-    video.src = videoBase64
-    video.loop = true
-    video.volume = 0.05
-    const p = document.createElement('p')
-    p.innerHTML = `星の力を秘めしかぎよ、真の姿を我の前に示せ、けいやくのもとさくらが命じる、レリーズ！`
+    linkEl.addEventListener('load', () => {
+      const video = document.createElement('video')
+      // video.src = `${LiteLoader.plugins[slug].path.plugin}/assets/movie.mp4`
+      video.src = videoBase64
+      video.loop = true
+      video.volume = 0.05
+      const p = document.createElement('p')
+      p.innerHTML = `星の力を秘めしかぎよ、真の姿を我の前に示せ、けいやくのもとさくらが命じる、レリーズ！`
 
-    shadow.append(video, p)
+      shadow.append(video, p)
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          video.play()
-          const liteloader = document.querySelector('.setting-main') as HTMLDivElement
-          liteloader.style.backgroundColor = 'black'
-        } else {
-          video.pause()
-          const liteloader = document.querySelector('.setting-main') as HTMLDivElement
-          liteloader.style.backgroundColor = 'transparent'
-        }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play()
+            const liteloader = document.querySelector('.setting-main') as HTMLDivElement
+            liteloader.style.backgroundColor = 'black'
+          } else {
+            video.pause()
+            const liteloader = document.querySelector('.setting-main') as HTMLDivElement
+            liteloader.style.backgroundColor = 'transparent'
+          }
+        })
       })
+      observer.observe(video)
     })
-    observer.observe(video)
   }
 }
 customElements.define(slug, ConfigElement)
