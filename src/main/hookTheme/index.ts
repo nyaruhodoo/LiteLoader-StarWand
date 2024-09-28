@@ -2,7 +2,7 @@ import { Utils } from '@/utils'
 import { EventEnum } from '../enum/eventEnum'
 import { listenerMap } from '../hook/hookWrapper'
 import { slug } from '@/manifest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import type { ConfigType } from '@/defaultConfig'
 // import { inspect } from 'node:util'
 
@@ -120,8 +120,11 @@ export const themeEventInterceptors = {
     }
   },
   [EventEnum.onThemeInfoChange](params: ThemeInfoChangeParams) {
-    // 怎么想都感觉不是很合适，但除此之外没有其他同步的方案了/(ㄒoㄒ)/~~
+    const configPath = `${LiteLoader.plugins[slug].path.data}/config.json`
+    if (!existsSync(configPath)) return params
+
     try {
+      // 怎么想都感觉不是很合适，但除此之外没有其他同步的方案了/(ㄒoㄒ)/~~
       const config: ConfigType = JSON.parse(readFileSync(`${LiteLoader.plugins[slug].path.data}/config.json`, 'utf8'))
       if (!config.theme) return
       const configThemeId = config.theme[0]
@@ -135,5 +138,7 @@ export const themeEventInterceptors = {
     } catch (error) {
       console.log(error)
     }
+
+    return params
   }
 }
