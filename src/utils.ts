@@ -1,21 +1,13 @@
 import type { ConfigType } from '@/defaultConfig'
 import { defaultConfig } from '@/defaultConfig'
-import { slug } from '@/manifest'
+import manifest from '@/manifest'
 
 export class Utils {
-  /**
-   * 快速引用本地路径
-   */
-  static createLocalUrl(filePath: string) {
-    const basePath = new URL(`local:///${LiteLoader.plugins[slug].path.plugin}/`)
-    return new URL(filePath, basePath).toString()
-  }
-
   /**
    * 初始化插件配置
    */
   static async getConfig() {
-    const oldConfig = await LiteLoader.api.config.get<ConfigType>(slug, defaultConfig)
+    const oldConfig = await LiteLoader.api.config.get<ConfigType>(manifest.slug, defaultConfig)
     const newConfig = this.mergeConfig(oldConfig, defaultConfig)
     return newConfig
   }
@@ -24,7 +16,7 @@ export class Utils {
    * 更新插件配置
    */
   static async updateConfig(config: ConfigType) {
-    await LiteLoader.api.config.set(slug, config)
+    await LiteLoader.api.config.set(manifest.slug, config)
     this.log('Config已更新', JSON.stringify(config))
   }
 
@@ -60,7 +52,7 @@ export class Utils {
    * 带有插件标识的Log
    */
   static log(...args) {
-    console.log(`${slug}:`, ...args)
+    console.log(`${manifest.slug}:`, ...args)
   }
 
   /**

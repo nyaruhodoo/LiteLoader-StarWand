@@ -1,7 +1,8 @@
 import { slug } from '@/manifest'
 import styleUrl from './index.scss?url'
 import fontUrl from './font.scss?url'
-import { Utils } from '@/utils'
+import videoBase64 from '../../../assets/movie.mp4'
+
 class ConfigElement extends HTMLElement {
   async connectedCallback() {
     const liteloader = document.querySelector('.setting-main') as HTMLDivElement
@@ -23,7 +24,8 @@ class ConfigElement extends HTMLElement {
 
     linkEl.addEventListener('load', () => {
       const video = document.createElement('video')
-      video.src = Utils.createLocalUrl('assets/movie.mp4')
+      // video.src = `${LiteLoader.plugins[slug].path.plugin}/assets/movie.mp4`
+      video.src = videoBase64
       video.loop = true
       video.volume = 0.05
       const p = document.createElement('p')
