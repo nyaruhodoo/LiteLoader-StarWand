@@ -42,7 +42,7 @@ class ConfigElement extends HTMLElement {
           } else {
             video.pause()
             const liteloader = document.querySelector('.setting-main') as HTMLDivElement
-            liteloader.style.backgroundColor = 'transparent'
+            liteloader.style.removeProperty('background-color')
           }
         })
       })
