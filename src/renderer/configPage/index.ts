@@ -39,10 +39,14 @@ class ConfigElement extends HTMLElement {
             video.play()
             const liteloader = document.querySelector('.setting-main') as HTMLDivElement
             liteloader.style.backgroundColor = 'black'
+            const titlebar = document.querySelector('.setting-title') as HTMLDivElement
+            titlebar.style.visibility = 'hidden'
           } else {
             video.pause()
             const liteloader = document.querySelector('.setting-main') as HTMLDivElement
             liteloader.style.removeProperty('background-color')
+            const titlebar = document.querySelector('.setting-title') as HTMLDivElement
+            titlebar.style.removeProperty('visibility')
           }
         })
       })
