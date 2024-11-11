@@ -13,6 +13,12 @@ export class Utils {
     return videoExtensions.includes(extName)
   }
 
+  static isImgFile(filePath: string) {
+    const imgExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.avif', '.svg']
+    const extName = extname(filePath).toLowerCase()
+    return imgExtensions.includes(extName)
+  }
+
   /**
    * 获取文件MD5
    */
