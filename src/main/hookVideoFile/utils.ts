@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { access } from 'node:fs/promises'
-import { extname } from 'node:path'
+import { access, constants, copyFile, mkdir } from 'node:fs/promises'
+import path, { extname } from 'node:path'
 
 export class Utils {
   /**
@@ -51,5 +51,22 @@ export class Utils {
     check()
 
     return promise
+  }
+
+  /**
+   * 检查目录是否存在后复制文件
+   */
+  static async copyFileWithDirCheck(oldPath: string, newPath: string) {
+    // 获取目标文件路径中的目录部分
+    const dir = path.dirname(newPath)
+    try {
+      // 尝试获取目录信息，如果目录不存在会抛出错误
+      await access(dir, constants.F_OK)
+    } catch (error) {
+      // 如果目录不存在，就创建它
+      await mkdir(dir, { recursive: true })
+    }
+    // 目录存在或者已经成功创建后，执行文件复制操作
+    await copyFile(oldPath, newPath)
   }
 }

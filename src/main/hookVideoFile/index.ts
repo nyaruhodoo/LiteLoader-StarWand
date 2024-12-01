@@ -4,7 +4,6 @@ import { EventEnum } from '../enum/eventEnum'
 import { basename, dirname, extname, join } from 'node:path'
 import { NTcore } from '../hook/hookWrapper'
 import { Utils } from './utils'
-import { copyFile } from 'node:fs/promises'
 
 /**
  * 获取QQ视频上传时的路径
@@ -60,10 +59,10 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   const oldThumbPath = picThumbPath?.get(750)
   if (!oldThumbPath) throw new Error('视频封面丢失')
 
-  await Promise.all([copyFile(filePath, uploadPath), Utils.checkFileExists(oldThumbPath)])
+  await Promise.all([Utils.copyFileWithDirCheck(filePath, uploadPath), Utils.checkFileExists(oldThumbPath)])
 
   const newThumbPath = videoPath2ThumbPath(uploadPath)
-  await copyFile(oldThumbPath, newThumbPath)
+  await Utils.copyFileWithDirCheck(oldThumbPath, newThumbPath)
 
   const thumbPath = new Map()
   thumbPath.set(0, newThumbPath)
@@ -95,7 +94,7 @@ const file2Img = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) =
    */
   const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.PIC)
 
-  await copyFile(filePath, uploadPath)
+  await Utils.copyFileWithDirCheck(filePath, uploadPath)
 
   const imgElement: SendPicElement = {
     elementType: ElementType.PIC,
