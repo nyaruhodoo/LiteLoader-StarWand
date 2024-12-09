@@ -1,3 +1,9 @@
+# 关于版本要求
+
+可以参考[LiteLoader-Wrapper-Template](https://github.com/nyaruhodoo/LiteLoader-Wrapper-Template)  
+最低版本也需要26909+，因我个人无太多精力维护所以往后也不会考虑兼容老版本
+
+
 # LiteLoader-StarWand
 
 大概算是个人开源的第一个插件?  
