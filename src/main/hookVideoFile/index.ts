@@ -122,6 +122,7 @@ const file2Img = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) =
 
 export const videoFileEventInterceptors = {
   [EventEnum.sendMsg](sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
+    if (sendMsg[1].chatType === 8) return sendMsg
     if (sendMsg[2][0].elementType !== ElementType.FILE) return sendMsg
     const { filePath } = (sendMsg[2][0] as SendFileElement).fileElement
 
