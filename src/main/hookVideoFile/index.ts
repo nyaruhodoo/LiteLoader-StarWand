@@ -124,7 +124,10 @@ export const videoFileEventInterceptors = {
   [EventEnum.sendMsg](sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
     if (sendMsg[1].chatType === 8) return sendMsg
     if (sendMsg[2][0].elementType !== ElementType.FILE) return sendMsg
-    const { filePath } = (sendMsg[2][0] as SendFileElement).fileElement
+    const { filePath, fileSize } = (sendMsg[2][0] as SendFileElement).fileElement
+
+    // 未测试，经用户反馈不能发超过100mb的内容
+    if (+fileSize / 1024 / 1024 >= 99) return sendMsg
 
     if (Utils.isVideoFile(filePath)) {
       file2Video(sendMsg)
