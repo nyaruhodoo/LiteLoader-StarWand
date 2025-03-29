@@ -33,6 +33,9 @@ export const enum EventEnum {
   // 获取可DIY的其他主题
   getTemplateThemeList = 'NodeIQQNTWrapperSession/create/getSkinService/getTemplateThemeList',
 
+  // 跳转外部链接时会调用
+  checkMsgWithUrl = 'NodeIQQNTWrapperSession/create/getMsgService/checkMsgWithUrl',
+
   //----------------- * IPC 部分 * -----------------
 
   // 收到新消息(只会收到已激活窗口消息)

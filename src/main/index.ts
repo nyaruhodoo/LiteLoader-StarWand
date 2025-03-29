@@ -3,6 +3,7 @@ import { EventEnum } from './enum/eventEnum'
 import { vipEventInterceptors } from './hookVIP'
 import { themeEventInterceptors } from './hookTheme'
 import { videoFileEventInterceptors } from './hookVideoFile'
+import { msgWithUrlInterceptors } from './hookUrl'
 ;(async () => {
   await hookWrapper({
     log: false,
@@ -10,7 +11,8 @@ import { videoFileEventInterceptors } from './hookVideoFile'
     eventInterceptors: {
       ...vipEventInterceptors,
       ...themeEventInterceptors,
-      ...videoFileEventInterceptors
+      ...videoFileEventInterceptors,
+      ...msgWithUrlInterceptors
     }
   })
 })()
