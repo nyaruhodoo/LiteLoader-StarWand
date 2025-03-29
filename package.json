@@ -1,9 +1,6 @@
 {
   "name": "liteloader-star-wand",
-  "version": "0.0.8",
-  "description": "你相信魔法吗",
   "main": "./out/main/index.js",
-  "author": "nyaruhodoo",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
