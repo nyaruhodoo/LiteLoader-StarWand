@@ -36,6 +36,9 @@ export const enum EventEnum {
   // 跳转外部链接时会调用
   checkMsgWithUrl = 'NodeIQQNTWrapperSession/create/getMsgService/checkMsgWithUrl',
 
+  // 不清楚具体作用，会收集到ll相关信息
+  onQQScreenWindowsInfo = 'NodeIQQNTWrapperSession/create/getNodeMiscService/addKernelNodeMiscListener/onQQScreenWindowsInfo',
+
   //----------------- * IPC 部分 * -----------------
 
   // 收到新消息(只会收到已激活窗口消息)

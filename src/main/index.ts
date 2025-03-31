@@ -8,7 +8,7 @@ import { favEmojiListener, favEmojiInterceptors } from './hookFavEmoji'
 ;(async () => {
   await hookWrapper({
     log: false,
-    eventBlacklist: [EventEnum.sendLog, /tianshu/i],
+    eventBlacklist: [EventEnum.sendLog, EventEnum.onQQScreenWindowsInfo, /tianshu/i],
     eventInterceptors: {
       ...vipEventInterceptors,
       ...themeEventInterceptors,
