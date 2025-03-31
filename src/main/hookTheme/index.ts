@@ -79,9 +79,9 @@ const onThemeInfoChange = async (themeInfo: SetThemeInfoParams) => {
 
   const params: ThemeInfoChangeParams = [themeId, theme, null, null, currentThemeTokenMap!]
   // 不得不缓存到本地了
-  await Utils.updateConfig({
-    theme: [themeId, theme, null, null, convertMapAndObject(currentThemeTokenMap!)]
-  })
+  const config = await Utils.getConfig()
+  config.theme = [themeId, theme, null, null, convertMapAndObject(currentThemeTokenMap!)]
+  await Utils.updateConfig(config)
   skinListener.onThemeInfoChange(...params)
 }
 

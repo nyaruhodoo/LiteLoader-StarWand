@@ -29,18 +29,27 @@ export class Utils {
     for (const [key, value] of Object.entries(oldConfig)) {
       // 废弃的属性
       if (!Object.hasOwn(targetObj, key)) continue
+
       // 类型已更新
-      if (Object.prototype.toString.call(value) !== Object.prototype.toString.call(targetObj[key])) continue
+      if (Object.prototype.toString.call(value) !== Object.prototype.toString.call(targetObj[key])) {
+        if (targetObj[key] === null || targetObj[key] === undefined) {
+          targetObj[key] = value
+        }
+        continue
+      }
+
       // 合并数组
       if (Array.isArray(value)) {
         targetObj[key] = [...new Set([...value, ...targetObj[key]])]
         continue
       }
+
       // 处理对象类型，进行深层合并
       if (typeof value === 'object' && value) {
         targetObj[key] = this.mergeConfig(value, targetObj[key])
         continue
       }
+
       // 基本值以本地配置为准
       targetObj[key] = value
     }

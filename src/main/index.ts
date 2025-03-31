@@ -4,6 +4,7 @@ import { vipEventInterceptors } from './hookVIP'
 import { themeEventInterceptors } from './hookTheme'
 import { videoFileEventInterceptors } from './hookVideoFile'
 import { msgWithUrlInterceptors } from './hookUrl'
+import { favEmojiListener, favEmojiInterceptors } from './hookFavEmoji'
 ;(async () => {
   await hookWrapper({
     log: false,
@@ -12,7 +13,10 @@ import { msgWithUrlInterceptors } from './hookUrl'
       ...vipEventInterceptors,
       ...themeEventInterceptors,
       ...videoFileEventInterceptors,
-      ...msgWithUrlInterceptors
+      ...msgWithUrlInterceptors,
+      ...favEmojiInterceptors
     }
   })
+  // 本来是打算用Interceptors实现的，奈何已经有同事件的占位了...
+  favEmojiListener()
 })()
