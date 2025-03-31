@@ -1,7 +1,6 @@
 import { slug } from '@/manifest'
 import styleUrl from './index.scss?url'
 import fontUrl from './font.scss?url'
-import videoBase64 from '../../../assets/movie.mp4'
 
 class ConfigElement extends HTMLElement {
   async connectedCallback() {
@@ -24,8 +23,8 @@ class ConfigElement extends HTMLElement {
 
     linkEl.addEventListener('load', () => {
       const video = document.createElement('video')
-      // video.src = `${LiteLoader.plugins[slug].path.plugin}/assets/movie.mp4`
-      video.src = videoBase64
+      video.src =
+        'https://cdn-img.gitcode.com/db/ee/61dbe40308efe583abf419907ee78dc784d4910531c49f0fa5a2090196be41b0.mp4?response-content-type=video/mp4'
       video.loop = true
       video.volume = 0.05
       const p = document.createElement('p')
