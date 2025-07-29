@@ -3,23 +3,21 @@ import { EventEnum } from '../enum/eventEnum'
 import { wrapperEmitter } from '../hook/hookWrapper'
 import { Utils } from '@/utils'
 
-export const favEmojiListener = () => {
-  wrapperEmitter.addListener(
-    EventEnum.sendMsg,
-    async ({ args: sendMsg }: { args: Parameters<NodeIKernelMsgService['sendMsg']> }) => {
-      const config = await Utils.getConfig()
-      if (!config.clickNum) config.clickNum = {}
+wrapperEmitter.addListener(
+  EventEnum.sendMsg,
+  async ({ args: sendMsg }: { args: Parameters<NodeIKernelMsgService['sendMsg']> }) => {
+    const config = await Utils.getConfig()
+    if (!config.clickNum) config.clickNum = {}
 
-      for (const msg of sendMsg[2]) {
-        if (msg.elementType !== ElementType.PIC || msg.picElement.picSubType !== 1) continue
-        const md5 = msg.picElement.md5HexStr
-        config.clickNum[md5] = (config.clickNum[md5] || 0) + 1
-      }
-
-      Utils.updateConfig(config)
+    for (const msg of sendMsg[2]) {
+      if (msg.elementType !== ElementType.PIC || msg.picElement.picSubType !== 1) continue
+      const md5 = msg.picElement.md5HexStr
+      config.clickNum[md5] = (config.clickNum[md5] || 0) + 1
     }
-  )
-}
+
+    Utils.updateConfig(config)
+  }
+)
 
 export const favEmojiInterceptors = {
   async 'NodeIQQNTWrapperSession/create/getMsgService/fetchFavEmojiList:response'(
