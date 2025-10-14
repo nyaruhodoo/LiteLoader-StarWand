@@ -94,7 +94,7 @@ function summoningMagic() {
     }, {
       capture: true,
     })
-  }, 0)
+  }, 200)
 }
 
 watchURLHash((hash) => {
