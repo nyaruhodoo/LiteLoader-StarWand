@@ -1,7 +1,7 @@
 # 关于版本要求
 
 ~~可以参考[LiteLoader-Wrapper-Template](https://github.com/nyaruhodoo/LiteLoader-Wrapper-Template)~~  
-永远只考虑最新版
+永远只考虑最新版(40768)
 
 顺带一提 **LiteLoader-Wrapper-Template** 将不会再进行任何维护，可以当作和本仓库二合一了  
 不出意外的话我自己会用到的所有功能都会逐渐缝合到该插件
