@@ -1,0 +1,22 @@
+{
+  "noEmit": true,
+  "compilerOptions": {
+    "composite": true,
+    "target": "esnext",
+    "baseUrl": "./",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/main/*": ["src/main/*"],
+      "@/renderer/*": ["src/renderer/*"],
+      "@/types/*": ["src/types/*"],
+      "@/manifest": ["./manifest.json"]
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+
+  }
+}

@@ -1,42 +1,44 @@
-import type { NodeIKernelMsgService, SendFileElement, SendPicElement, SendVideoElement } from 'napcat.core'
-import { ElementType } from 'napcat.core'
-import { EventEnum } from '../enum/eventEnum'
+import type { WrapperInterceptors } from '@/types/wrapper/core'
+import type { FileElement } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
+import type { NodeIKernelMsgService } from '@/types/wrapper/core/NodeIQQNTWrapperSession/NodeIKernelMsgService'
 import { basename, dirname, extname, join } from 'node:path'
-import { NTcore } from '../hook/hookWrapper'
+import { ElementType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
+import { starWand } from '../hook/hookWrapper'
 import { Utils } from './utils'
 
 /**
  * 获取QQ视频上传时的路径
  */
-const getUploadPath = (filePath: string, fileName: string, elementType: ElementType) => {
+function getUploadPath(filePath: string, fileName: string, elementType: ElementType) {
   const md5HexStr = Utils.getFileMD5(filePath)
-  const uploadPath = NTcore?.session.getMsgService().getRichMediaFilePathForGuild({
+  const uploadPath = starWand?.Session?.getMsgService().getRichMediaFilePathForGuild({
     md5HexStr,
-    fileName: fileName,
+    fileName,
     elementType,
     elementSubType: 0,
     thumbSize: 0,
     needCreate: true,
     downloadType: 1,
-    file_uuid: ''
+    file_uuid: '',
   })
-  if (!uploadPath) throw new Error('无法获取视频上传路径')
+  if (!uploadPath)
+    throw new Error('无法获取视频上传路径')
   return {
     uploadPath,
-    md5HexStr
+    md5HexStr,
   }
 }
 
 /**
  * 根据视频存储路径获取新的封面存储路径
  */
-const videoPath2ThumbPath = (videoPath: string) => {
+function videoPath2ThumbPath(videoPath: string) {
   const test = videoPath.replace('Ori', 'Thumb')
   const dir = dirname(test)
   const ext1 = extname(test)
   const baseName = basename(test, ext1)
 
-  // 好像只能是png后缀，麻了
+  // 好像只能是png后缀?
   const newFileName = `${baseName}_0.png`
 
   const newFilePath = join(dir, newFileName)
@@ -44,20 +46,20 @@ const videoPath2ThumbPath = (videoPath: string) => {
   return newFilePath
 }
 
-const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) => {
-  const { fileName, filePath, picHeight, picWidth, picThumbPath, fileSize } = (sendMsg[2][0] as SendFileElement)
-    .fileElement
+async function file2Video(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
+  const { fileName, filePath, picHeight, picWidth, picThumbPath, fileSize } = sendMsg[2][0]?.fileElement as FileElement
 
   /**
    * 一个视频可以成功发送的前提是，该文件处于 C:\Users\Administrator\Documents\Tencent Files\uid\nt_qq\nt_data\Video\xxxx-xx\Ori
    * 封面和上面一样只不过是 Thumb 目录
    * 或许直接改 downloadRichMedia 的参数指向原路径会更简单？
    */
-  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.VIDEO)
+  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.VIdeoElement)
 
   // 视频封面可以沿用 QQ 的逻辑，只不过是异步创建的
   const oldThumbPath = picThumbPath?.get(750)
-  if (!oldThumbPath) throw new Error('视频封面丢失')
+  if (!oldThumbPath)
+    throw new Error('视频封面丢失')
 
   await Promise.all([Utils.copyFileWithDirCheck(filePath, uploadPath), Utils.checkFileExists(oldThumbPath)])
 
@@ -67,8 +69,8 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   const thumbPath = new Map()
   thumbPath.set(0, newThumbPath)
 
-  const videoElement: SendVideoElement = {
-    elementType: ElementType.VIDEO,
+  const videoElement = {
+    elementType: ElementType.VIdeoElement,
     elementId: '',
     videoElement: {
       filePath: uploadPath,
@@ -78,30 +80,30 @@ const file2Video = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
       fileSize,
       thumbWidth: picWidth,
       thumbHeight: picHeight,
-      thumbPath
-    }
+      thumbPath,
+    },
   }
   sendMsg[2][0] = videoElement
 
-  return NTcore?.session.getMsgService().sendMsg(...sendMsg)
+  return starWand?.Session?.getMsgService().sendMsg(...sendMsg)
 }
 
-const file2Img = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) => {
-  const { fileName, filePath, picHeight, picWidth, fileSize } = (sendMsg[2][0] as SendFileElement).fileElement
+async function file2Img(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
+  const { fileName, filePath, picHeight, picWidth, fileSize } = sendMsg[2][0]?.fileElement as FileElement
 
   /**
    * 一个图片可以成功发送的前提是，该文件处于 C:\Users\Administrator\Documents\Tencent Files\uid\nt_qq\nt_data\Pic\xxxx-xx\Ori
    */
-  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.PIC)
+  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.PicElement)
 
   await Utils.copyFileWithDirCheck(filePath, uploadPath)
 
-  const imgElement: SendPicElement = {
-    elementType: ElementType.PIC,
+  const imgElement = {
+    elementType: ElementType.PicElement,
     elementId: '',
     picElement: {
       md5HexStr,
-      fileSize: fileSize,
+      fileSize,
       picWidth: picWidth ?? 0,
       picHeight: picHeight ?? 0,
       fileName: `${md5HexStr}.${extname(filePath).toLowerCase()}`,
@@ -112,33 +114,37 @@ const file2Img = async (sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) =
       fileUuid: '',
       fileSubId: '',
       thumbFileSize: 0,
-      summary: ''
-    }
-  }
+      summary: '',
+    },
+  } as const
   sendMsg[2][0] = imgElement
 
-  return NTcore?.session.getMsgService().sendMsg(...sendMsg)
+  return starWand?.Session?.getMsgService().sendMsg(...sendMsg)
 }
 
-export const videoFileEventInterceptors = {
-  [EventEnum.sendMsg](sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
-    if (sendMsg[1].chatType === 8) return sendMsg
-    if (sendMsg[2][0].elementType !== ElementType.FILE) return sendMsg
-    const { filePath, fileSize } = (sendMsg[2][0] as SendFileElement).fileElement
+export const videoFileEventInterceptors: WrapperInterceptors = {
+  'NodeIQQNTWrapperSession/create/getMsgService/sendMsg': function (params) {
+    if (params[1].chatType === 8)
+      return params
+    if (params[2][0]?.elementType !== ElementType.FileElement)
+      return params
 
-    // 未测试，经用户反馈不能发超过100mb的内容
-    if (+fileSize / 1024 / 1024 >= 99) return sendMsg
+    const { filePath, fileSize } = params[2][0].fileElement!
+
+    // 不能发超过100mb的内容
+    if (+fileSize / 1024 / 1024 >= 99)
+      return params
 
     if (Utils.isVideoFile(filePath)) {
-      file2Video(sendMsg)
+      file2Video(params)
       throw new Error('喵喵喵')
     }
 
     if (Utils.isImgFile(filePath)) {
-      file2Img(sendMsg)
+      file2Img(params)
       throw new Error('喵喵喵')
     }
 
-    return sendMsg
-  }
+    return params
+  },
 }

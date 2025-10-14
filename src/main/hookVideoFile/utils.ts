@@ -41,7 +41,8 @@ export class Utils {
       try {
         await access(filePath)
         resolve(filePath)
-      } catch (_) {
+      }
+      catch {
         if (attempts > maxAttempts) {
           reject(new Error('找不到视频封面'))
         }
@@ -62,7 +63,8 @@ export class Utils {
     try {
       // 尝试获取目录信息，如果目录不存在会抛出错误
       await access(dir, constants.F_OK)
-    } catch (error) {
+    }
+    catch {
       // 如果目录不存在，就创建它
       await mkdir(dir, { recursive: true })
     }

@@ -1,20 +1,21 @@
+import { WrapperEventEnum } from 'src/types/wrapper/eventEnum'
 import { hookWrapper } from '@/main/hook/hookWrapper'
-import { EventEnum } from './enum/eventEnum'
-// import { vipEventInterceptors } from './hookVIP'
-// import { themeEventInterceptors } from './hookTheme'
-import { videoFileEventInterceptors } from './hookVideoFile'
-import { msgWithUrlInterceptors } from './hookUrl'
+import { grabRedBag } from './grabRedBag'
 import { favEmojiInterceptors } from './hookFavEmoji'
-;(async () => {
+import { msgWithUrlInterceptors } from './hookMsgWithUrl'
+import { videoFileEventInterceptors } from './hookVideoFile';
+
+(async () => {
   await hookWrapper({
     log: false,
-    eventBlacklist: [EventEnum.sendLog, /tianshu/i],
+    logDepth: null,
+    eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i],
     eventInterceptors: {
-      // ...vipEventInterceptors,
-      // ...themeEventInterceptors,
-      ...videoFileEventInterceptors,
+      ...favEmojiInterceptors,
       ...msgWithUrlInterceptors,
-      ...favEmojiInterceptors
-    }
+      ...videoFileEventInterceptors,
+    },
   })
+
+  grabRedBag()
 })()

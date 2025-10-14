@@ -1,48 +1,47 @@
-import { ElementType, type NodeIKernelMsgService } from 'napcat.core'
-import { EventEnum } from '../enum/eventEnum'
-import { wrapperEmitter } from '../hook/hookWrapper'
-import { Utils } from '@/utils'
+import type { WrapperInterceptors } from '@/types/wrapper/core'
+import { Utils } from 'src/utils'
+import { ElementType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
+import { WrapperEventEnum } from '@/types/wrapper/eventEnum'
+import { starWand } from '../hook/hookWrapper'
 
-wrapperEmitter.addListener(
-  EventEnum.sendMsg,
-  async ({ args: sendMsg }: { args: Parameters<NodeIKernelMsgService['sendMsg']> }) => {
+starWand.wrapperEmitter.addListener(
+  WrapperEventEnum.sendMsg,
+  async ({ params }) => {
     const config = await Utils.getConfig()
-    if (!config.clickNum) config.clickNum = {}
+    if (!config.clickNum)
+      config.clickNum = {}
 
-    for (const msg of sendMsg[2]) {
-      if (msg.elementType !== ElementType.PIC || msg.picElement.picSubType !== 1) continue
+    for (const msg of params[2]) {
+      if (msg.elementType !== ElementType.PicElement || msg.picElement?.picSubType !== 1)
+        continue
       const md5 = msg.picElement.md5HexStr
       config.clickNum[md5] = (config.clickNum[md5] || 0) + 1
     }
 
     Utils.updateConfig(config)
-  }
+  },
 )
 
-export const favEmojiInterceptors = {
-  async 'NodeIQQNTWrapperSession/create/getMsgService/fetchFavEmojiList:response'(
-    res: Promise<{
-      emojiInfoList: {
-        md5: string
-        clickNum: number
-      }[]
-    }>
+export const favEmojiInterceptors: WrapperInterceptors = {
+  'NodeIQQNTWrapperSession/create/getMsgService/fetchFavEmojiList:response': async function (
+    { applyRet },
   ) {
-    const value = await res
+    const res = await applyRet
     const config = await Utils.getConfig()
 
     for (const [md5, clickNum] of Object.entries(config.clickNum ?? {})) {
-      const target = value.emojiInfoList.find((emoji) => {
+      const target = res.emojiInfoList.find((emoji) => {
         return emoji.md5.toLowerCase() === md5.toLowerCase()
       })
-      if (!target) continue
+      if (!target)
+        continue
       target.clickNum = clickNum
     }
 
-    value.emojiInfoList.sort((a, b) => {
+    res.emojiInfoList.sort((a, b) => {
       return b.clickNum - a.clickNum
     })
 
-    return value
-  }
+    return res
+  },
 }

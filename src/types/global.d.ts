@@ -66,17 +66,13 @@ declare namespace LiteLoader {
   }
 
   interface ILiteLoaderAPIConfig {
-    set: <IConfig = unknown>(slug: string, new_config: IConfig) => Promise<IConfig>
-    get: <IConfig = unknown>(slug: string, defaultConfig: IConfig) => Promise<IConfig>
-  }
-}
-
-declare module Electron {
-  namespace CrossProcessExports {
-    interface BrowserWindow {
-      webContents: WebContents & {
-        _events: Record<string, () => void>
-      }
-    }
+    set: <IConfig = unknown>(
+      slug: string,
+      new_config: IConfig
+    ) => Promise<IConfig>
+    get: <IConfig = unknown>(
+      slug: string,
+      defaultConfig: IConfig
+    ) => Promise<IConfig>
   }
 }

@@ -1,10 +1,27 @@
 export interface ConfigType {
-  // 干哦，我真不关心你什么类型
-  theme?: [number, Record<any, any>, null, null, Record<any, any>] | null
-  clickNum?: Record<string, number> | null
+  clickNum: Record<string, number>
+  minimumAmount: number
+  randomDelay: {
+    min: number
+    max: number
+  }
+  redPackTextBlacklist: string
+  groupBlacklist: string
+  senderBlacklist: string
+  skipPwd: boolean
+  autoSendmsg: string
 }
 
 export const defaultConfig: ConfigType = {
-  theme: null,
-  clickNum: null
+  clickNum: {},
+  minimumAmount: 200,
+  randomDelay: {
+    min: 200,
+    max: 500,
+  },
+  redPackTextBlacklist: '挂&死&狗&测试',
+  groupBlacklist: '',
+  senderBlacklist: '',
+  skipPwd: false,
+  autoSendmsg: '谢谢',
 }

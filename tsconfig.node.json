@@ -1,13 +1,14 @@
 {
-  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*", "src/*", "src/types/**/*"],
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "types": ["electron-vite/node"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@/manifest": ["./manifest.json"]
-    }
-  }
+    "module": "esnext",
+    "types": ["node", "electron"]
+  },
+  "include": [
+    "src/main/**/*",
+    "src/preload/**/*",
+    "src/*",
+    "src/types/**/*",
+    "./*"
+  ]
 }
