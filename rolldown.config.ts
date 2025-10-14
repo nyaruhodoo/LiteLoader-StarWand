@@ -45,6 +45,7 @@ export default defineConfig([
       }),
       postcss({
         extract: true,
+        minimize: true,
       }),
     ],
   },

@@ -1,9 +1,9 @@
 # 关于版本要求
 
-~~可以参考[LiteLoader-Wrapper-Template](https://github.com/nyaruhodoo/LiteLoader-Wrapper-Template)~~  
+~~可以参考[LiteLoader-Wrapper-Template](https://github.com/nyaruhodoo/LiteLoader-Wrapper-Template)~~
 永远只考虑最新版(40768)
 
-顺带一提 **LiteLoader-Wrapper-Template** 将不会再进行任何维护，可以当作和本仓库二合一了  
+顺带一提 **LiteLoader-Wrapper-Template** 将不会再进行任何维护，可以当作和本仓库二合一了
 不出意外的话我自己会用到的所有功能都会逐渐缝合到该插件
 
 # LiteLoader-StarWand
@@ -22,7 +22,7 @@
 - [ ] 表情包消息转图片消息，解除复制限制
 - [ ] 消息屏蔽
 
-本插件将不会考虑具体功能的开关，如果你选择使用那么一切都是强制开启的  
+本插件将不会考虑具体功能的开关，如果你选择使用那么一切都是强制开启的
 有需求自己进行本地修改即可
 
 ~~其实我个人对カードキャプターさくら没什么感觉，只是觉得十分契合这个名字~~
