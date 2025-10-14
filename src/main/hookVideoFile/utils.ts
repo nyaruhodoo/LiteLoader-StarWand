@@ -44,7 +44,7 @@ export class Utils {
       }
       catch {
         if (attempts > maxAttempts) {
-          reject(new Error('找不到视频封面'))
+          return reject(new Error('找不到视频封面'))
         }
         setTimeout(check, interval)
       }
