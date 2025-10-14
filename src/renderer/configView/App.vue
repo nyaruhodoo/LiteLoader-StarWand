@@ -36,7 +36,7 @@ watch(configReactive, (newVal) => {
 </script>
 
 <template>
-  <ConfigList title="黑名单配置">
+  <ConfigList title="抢红包">
     <ConfigItem title="关键字黑名单" tip="使用&进行分割">
       <NInput v-model="redPackTextBlacklist" />
     </ConfigItem>
@@ -46,27 +46,18 @@ watch(configReactive, (newVal) => {
     <ConfigItem title="Q号黑名单" tip="使用&进行分割">
       <NInput v-model="senderBlacklist" />
     </ConfigItem>
-  </ConfigList>
-
-  <ConfigList title="延迟">
     <ConfigItem title="最小延迟(ms)">
       <NInput v-model.number="randomDelay.min" />
     </ConfigItem>
     <ConfigItem title="最大延迟(ms)">
       <NInput v-model.number="randomDelay.max" />
     </ConfigItem>
-  </ConfigList>
-
-  <ConfigList title="自动回复">
     <ConfigItem title="领取成功后随机回复" tip="使用&进行分割">
       <NInput v-model="autoSendmsg" />
     </ConfigItem>
     <ConfigItem title="低于指定金额不自动回复(分)">
       <NInput v-model.number="minimumAmount" />
     </ConfigItem>
-  </ConfigList>
-
-  <ConfigList title="杂项">
     <ConfigItem title="跳过发言领取口令红包">
       <NSwitch v-model="skipPwd" />
     </ConfigItem>

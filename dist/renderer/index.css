@@ -4,7 +4,6 @@
   src: url('https://pro-cs-freq.udeskcs.com/chat_upload/tid26/8c76f7aa1070721380c7f256202fc4681760371942_1760371942345_9ce9b7?OSSAccessKeyId=LTAI5tGLdqHDT2hBX8kvY2WR&Expires=1760400742&Signature=Gi38vP5VBzCb0Z3MlwGQ3WCyoAQ%3D');
 }
 
-
 .magic-box {
   position: fixed;
   inset: 0;
@@ -24,9 +23,10 @@
     background: linear-gradient(to bottom right, #ff69b4, #ffc0cb, #fff);
     -webkit-background-clip: text;
             background-clip: text;
-    color: transparent; 
+    color: transparent;
   }
 }
+
 .\!container {
     width: 100% !important
 }
