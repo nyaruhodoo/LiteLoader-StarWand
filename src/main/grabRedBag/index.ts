@@ -1,6 +1,5 @@
 import type { ConfigType } from 'src/defaultConfig'
-import type { ChatType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
-import type { KernelMsgListener } from '@/types/wrapper/core/NodeIQQNTWrapperSession/NodeIKernelMsgService'
+import type { ChatType, MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 import { ipcMain, Notification } from 'electron'
 import { Utils } from 'src/utils'
 import { name, slug } from '@/manifest'
@@ -47,7 +46,7 @@ function isRedBagTextMsg(content: string) {
 /**
  * 检查红包是否为黑名单
  */
-function checkBlacklist(config: ConfigType, msg: Parameters<KernelMsgListener['onRecvMsg']>[0][0]) {
+function checkBlacklist(config: ConfigType, msg: MsgInfo) {
   const { senderBlacklist, groupBlacklist, redPackTextBlacklist } = config
 
   return (
@@ -98,7 +97,7 @@ function sendTextMsg({ chatType, peerUid, content }: { chatType: ChatType, peerU
 /**
  * 处理红包消息
  */
-async function onRecvActiveLuckyMoneyMsg(msg: Parameters<KernelMsgListener['onRecvMsg']>[0][0], config: ConfigType) {
+async function onRecvActiveLuckyMoneyMsg(msg: MsgInfo, config: ConfigType) {
   Utils.log('收到一条红包新消息')
 
   if (!authData?.uid)

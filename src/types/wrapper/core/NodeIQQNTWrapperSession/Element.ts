@@ -206,7 +206,7 @@ export interface WalletElement {
    * 3: 拼手气红包
    * 6: 口令红包
    */
-  msgType: number
+  msgType: 2 | 3 | 6
   envelopeId: number
   name: string
   confType: number
