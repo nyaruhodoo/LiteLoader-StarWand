@@ -1,11 +1,5 @@
 import './index.css'
 
-const magicCssUrl = new URL('./index.css', import.meta.url).href
-const css = document.createElement('link')
-css.rel = 'stylesheet'
-css.href = magicCssUrl
-document.head.append(css)
-
 function watchURLHash(callback: (hash: string) => unknown) {
   if (!location.hash.includes('#/blank')) {
     callback(location.hash)
@@ -183,11 +177,21 @@ function summoningStar(container: HTMLDivElement) {
   })
 }
 
+/**
+ * init
+ */
 watchURLHash((hash) => {
   if (hash !== '#/main/message')
     return
 
-  summoningMagic()
+  const magicCssUrl = new URL('./index.css', import.meta.url).href
+  const css = document.createElement('link')
+  css.rel = 'stylesheet'
+  css.href = magicCssUrl
+  document.head.append(css)
+  css.onload = () => {
+    summoningMagic()
+  }
 })
 
 export { onSettingWindowCreated } from '@/renderer/configView'
