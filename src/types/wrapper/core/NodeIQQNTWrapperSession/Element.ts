@@ -228,13 +228,99 @@ export interface ArkElement {
   buildMultiMsgReqInfo: null
 }
 
+export interface FaceElement {
+  faceIndex: number
+  faceText: string
+  faceType: number
+  packId: string
+  stickerId: string
+  sourceType: number
+  stickerType: number
+  resultId: string
+  surpriseId: string
+  randomType: number
+  imageType: null
+  pokeType: null
+  spokeSummary: null
+  doubleHit: null
+  vaspokeId: null
+  vaspokeName: null
+  vaspokeMinver: null
+  pokeStrength: null
+  msgType: null
+  faceBubbleCount: null
+  oldVersionStr: null
+  pokeFlag: null
+  chainCount: number
+}
+
+export interface PttElement {
+  fileName: string
+  filePath: string
+  md5HexStr: string
+  fileSize: string
+  duration: number
+  formatType: number
+  voiceType: number
+  autoConvertText: number
+  voiceChangeType: number
+  canConvert2Text: boolean
+  fileId: number
+  fileUuid: string
+  text: string
+  translateStatus: number
+  transferStatus: number
+  progress: number
+  playState: number
+  waveAmplitudes: number[]
+  invalidState: number
+  fileSubId: string
+  fileBizId: null
+  import_rich_media_context: null
+  storeID: number
+}
+
+export interface AvRecordElement {
+  type: number
+  time: string
+  text: string
+  mainType: number
+  hasRead: boolean
+  exraType: null
+}
+
 export enum ElementType {
+  /**
+   * 文本消息
+   */
   TextElement = 1,
+  /**
+   * 图片消息
+   */
   PicElement = 2,
   FileElement = 3,
-  VIdeoElement = 5,
+  /**
+   * 语音消息
+   */
+  PttElement = 4,
+  VideoElement = 5,
+  /**
+   * 表情包消息
+   */
+  FaceElement = 6,
   ReplyElement = 7,
+  /**
+   * 类似拍一拍的灰色消息
+   */
+  GrayTipElement = 8,
+  /**
+   * 卡片消息，塞万物
+   */
   ArkElement = 10,
+  /**
+   * 测试语音通话的时候出现的灰色提示
+   */
+  AvRecordElement = 21,
 }
 
 export interface Element {
@@ -243,11 +329,11 @@ export interface Element {
   elementGroupId: number
   extBufForUI: Uint8Array
   textElement?: TextElement
-  faceElement?: null
+  faceElement?: FaceElement
   marketFaceElement?: null
   replyElement?: ReplyElement
   picElement?: PicElement
-  pttElement?: null
+  pttElement?: PttElement
   videoElement?: VideoElement
   grayTipElement?: GrayTipElement
   arkElement?: ArkElement
@@ -262,7 +348,7 @@ export interface Element {
   textGiftElement?: null
   calendarElement?: null
   yoloGameResultElement?: null
-  avRecordElement?: null
+  avRecordElement?: AvRecordElement
   structMsgElement?: null
   faceBubbleElement?: null
   shareLocationElement?: null
