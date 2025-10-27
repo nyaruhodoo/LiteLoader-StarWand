@@ -205,8 +205,9 @@ export interface WalletElement {
    * 2: 普通红包
    * 3: 拼手气红包
    * 6: 口令红包
+   * 8: 专属红包
    */
-  msgType: 2 | 3 | 6
+  msgType: 2 | 3 | 6 | 8
   envelopeId: number
   name: string
   confType: number
@@ -272,7 +273,11 @@ export interface Element {
   prologueMsgElement?: null
 }
 
-// 1私聊，2群聊，8发送给手机
+/**
+ * 1 私聊
+ * 2 群聊
+ * 8 发送给手机
+ */
 export type ChatType = 1 | 2 | 8
 
 export interface PeerInfo {
@@ -340,7 +345,7 @@ export interface MsgInfo {
   directMsgFlag: number
   /** 私信成员列表（私信场景的参与成员，此处为空） */
   directMsgMembers: Array<unknown>
-  /** 对方名称/群名称：此处为群聊名称“二次元⊆编程(秋)” */
+  /** 对方名称/群名称 */
   peerName: string
   /** 频率限制信息（如消息发送频率超限提示，此处为空表示无限制） */
   freqLimitInfo: null

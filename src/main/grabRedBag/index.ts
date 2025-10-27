@@ -98,7 +98,7 @@ function sendTextMsg({ chatType, peerUid, content }: { chatType: ChatType, peerU
  * 处理红包消息
  */
 async function onRecvActiveLuckyMoneyMsg(msg: MsgInfo, config: ConfigType) {
-  Utils.log('收到一条红包新消息')
+  Utils.log('收到一条红包新消息', msg)
 
   if (!authData?.uid)
     throw new Error('暂未获取到自身数据，不参与本次抢红包')
@@ -198,7 +198,7 @@ export async function grabRedBag(config?: ConfigType) {
           if (element.textElement && isRedBagTextMsg(element.textElement.content))
             throw new Error(`${targetName}发送了红包，请使用手机领取`)
 
-          if (element.walletElement) {
+          if (element.walletElement && element.walletElement.msgType !== 8) {
             await onRecvActiveLuckyMoneyMsg(msg, newConfig)
             showNotification(`已自动领取${targetName}发送的红包`)
           }
