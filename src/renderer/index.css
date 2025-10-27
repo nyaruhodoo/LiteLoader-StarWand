@@ -49,3 +49,8 @@
     animation: twinkle 1s ease-out forwards;
   }
 }
+
+/* 去你妈的傻逼拖拽 */
+.recent-contact-item {
+  -webkit-user-drag: none !important;
+}
