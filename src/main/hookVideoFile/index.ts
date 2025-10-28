@@ -54,7 +54,7 @@ async function file2Video(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
    * 封面和上面一样只不过是 Thumb 目录
    * 或许直接改 downloadRichMedia 的参数指向原路径会更简单？
    */
-  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.VIdeoElement)
+  const { md5HexStr, uploadPath } = getUploadPath(filePath, fileName, ElementType.VideoElement)
 
   // 视频封面可以沿用 QQ 的逻辑，只不过是异步创建的
   const oldThumbPath = picThumbPath?.get(750)
@@ -71,7 +71,7 @@ async function file2Video(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   thumbPath.set(0, newThumbPath)
 
   const videoElement = {
-    elementType: ElementType.VIdeoElement,
+    elementType: ElementType.VideoElement,
     elementId: '',
     videoElement: {
       filePath: uploadPath,
