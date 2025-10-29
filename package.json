@@ -3,7 +3,7 @@
   "type": "module",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "rolldown -c rolldown.config.ts",
+    "build": "pnpm run lint:fix && rolldown -c rolldown.config.ts",
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
