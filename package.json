@@ -1,5 +1,6 @@
 {
   "name": "liteloader-star-wand",
+  "type": "module",
   "main": "./dist/main/index.js",
   "scripts": {
     "build": "rolldown -c rolldown.config.ts",
