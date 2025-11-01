@@ -29,7 +29,7 @@ export interface GrayTipElement {
     origMsgSenderMemRemark: string
     isSelfOperate: boolean
     wording: string
-  }
+  } | null
   proclamationElement: any | null // 根据实际情况调整类型
   emojiReplyElement: any | null // 根据实际情况调整类型
   groupElement: any | null // 根据实际情况调整类型
@@ -38,7 +38,19 @@ export interface GrayTipElement {
   essenceElement: any | null // 根据实际情况调整类型
   groupNotifyElement: any | null // 根据实际情况调整类型
   buddyNotifyElement: any | null // 根据实际情况调整类型
-  xmlElement: any | null // 根据实际情况调整类型
+  xmlElement: {
+    busiType: string // 业务类型
+    busiId: string // 业务ID
+    c2cType: number // C2C类型标识
+    serviceType: number // 服务类型
+    ctrlFlag: number // 控制标记
+    content: string // 消息内容（含富文本标签）
+    templId: string // 模板ID
+    seqId: string // 消息序列号
+    templParam: Map<string, string> // 模板参数映射
+    pbReserv: null // 预留字段（无数据）
+    members: Map<string, string> // 成员映射（key为uin标识，value为昵称）
+  } | null
   fileReceiptElement: any | null // 根据实际情况调整类型
   localGrayTipElement: any | null // 根据实际情况调整类型
   blockGrayTipElement: any | null // 根据实际情况调整类型
