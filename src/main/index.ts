@@ -2,6 +2,7 @@ import { WrapperEventEnum } from 'src/types/wrapper/eventEnum'
 import { hookWrapper } from '@/main/hook/hookWrapper'
 import { grabRedBag } from './grabRedBag'
 import { favEmojiInterceptors } from './hookFavEmoji'
+import { msgInterceptors } from './hookMsg'
 import { msgWithUrlInterceptors } from './hookMsgWithUrl'
 import { videoFileEventInterceptors } from './hookVideoFile';
 
@@ -9,11 +10,12 @@ import { videoFileEventInterceptors } from './hookVideoFile';
   await hookWrapper({
     log: false,
     logDepth: null,
-    eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i],
+    eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i, WrapperEventEnum.fetchUnitedCommendConfig],
     eventInterceptors: {
       ...favEmojiInterceptors,
       ...msgWithUrlInterceptors,
       ...videoFileEventInterceptors,
+      ...msgInterceptors,
     },
   })
 

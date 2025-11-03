@@ -67,7 +67,13 @@ export interface TextElement {
   atNtUid: string
   subElementType: number
   atChannelId: string
-  linkInfo: null
+  linkInfo: null | {
+    title: string
+    icon: string
+    desc: string
+    richStatus: number
+    tencentDocType: null
+  }
   atRoleId: string
   atRoleColor: 0
   atRoleName: string
@@ -348,7 +354,7 @@ export interface Element {
   pttElement?: PttElement
   videoElement?: VideoElement
   grayTipElement?: GrayTipElement
-  arkElement?: ArkElement
+  arkElement: ArkElement | null
   fileElement?: FileElement
   liveGiftElement?: null
   markdownElement?: null

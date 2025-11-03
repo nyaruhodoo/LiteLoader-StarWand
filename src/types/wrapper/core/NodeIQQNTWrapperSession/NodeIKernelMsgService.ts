@@ -70,9 +70,9 @@ export interface KernelMsgListener {
   onRecvMsgSvrRspTransInfo: () => void
 
   /**
-   * 消息信息列表更新时触发
+   * 消息信息列表更新时触发(不是很确认)
    */
-  onMsgInfoListUpdate: () => void
+  onMsgInfoListUpdate: (msg: MsgInfo[]) => boolean
 
   /**
    * 消息信息列表添加时触发
@@ -553,7 +553,10 @@ export interface NodeIKernelMsgService {
   getAllOnlineFileMsgs: () => any[] // 获取所有在线文件消息
   getLatestDbMsgs: () => any[] // 获取最新数据库消息
   getLastMessageList: () => any[] // 获取最后消息列表
-  getAioFirstViewLatestMsgs: () => any[] // 获取AIO首次查看的最新消息
+  // 获取首次查看的最新消息
+  getAioFirstViewLatestMsgs: () => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }>
   getMsgs: (filter: any) => any[] // 获取消息
   /**
    * 获取消息的详情数据，似乎所有消息出现在视口时都会请求一次(只针对最新消息？)
