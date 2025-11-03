@@ -84,13 +84,7 @@ export const msgInterceptors: WrapperInterceptors = {
     if (msgInfo.chatType !== 2)
       return
 
-    for (const element of msgInfo.elements) {
-      if (element.elementType === 10 && element.arkElement) {
-        ark2Text(msgInfo)
-        msgInfo.msgType = 2
-        break
-      }
-    }
+    ark2Text(msgInfo)
   },
   'NodeIQQNTWrapperSession/create/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
@@ -100,13 +94,7 @@ export const msgInterceptors: WrapperInterceptors = {
     if (msgInfo.chatType !== 2)
       return
 
-    for (const element of msgInfo.elements) {
-      if (element.elementType === 10 && element.arkElement) {
-        ark2Text(msgInfo)
-        msgInfo.msgType = 2
-        break
-      }
-    }
+    ark2Text(msgInfo)
   },
   'NodeIQQNTWrapperSession/create/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
@@ -115,12 +103,7 @@ export const msgInterceptors: WrapperInterceptors = {
       if (msgInfo.chatType !== 2)
         continue
 
-      for (const element of msgInfo.elements) {
-        if (element.elementType === 10 && element.arkElement) {
-          ark2Text(msgInfo)
-          break
-        }
-      }
+      ark2Text(msgInfo)
     }
 
     return res
@@ -132,12 +115,7 @@ export const msgInterceptors: WrapperInterceptors = {
       if (msgInfo.chatType !== 2)
         continue
 
-      for (const element of msgInfo.elements) {
-        if (element.elementType === 10 && element.arkElement) {
-          ark2Text(msgInfo)
-          break
-        }
-      }
+      ark2Text(msgInfo)
     }
 
     return res
