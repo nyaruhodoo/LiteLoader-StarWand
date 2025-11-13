@@ -86,6 +86,7 @@ export function hookWrapper(config: ConfigType = {}) {
         // hook 所有 wrapper 导出模块
         if (fileName.includes('wrapper.node')) {
           const wrapper = argArray[0].exports as Wrapper
+
           const hookWrapper = new Proxy(wrapper, {
             get(_, wrapperApiName: keyof Wrapper, receiver) {
               const wrapperApi = Reflect.get(wrapper, wrapperApiName, receiver)
@@ -127,7 +128,7 @@ export function hookWrapper(config: ConfigType = {}) {
                           rootKey: key,
                         })
 
-                        if (key === 'NodeIQQNTWrapperSession/create') {
+                        if (key === 'NodeIQQNTWrapperSession/getNTWrapperSession') {
                           starWand!.Session = hookApplyRet as NodeIQQNTWrapperSession
                         }
 
@@ -168,7 +169,7 @@ export function hookWrapper(config: ConfigType = {}) {
    * 或许等 QQ 自己调用是一个比较稳妥的办法
    */
   // @ts-expect-error 类型体操那边忽略了service
-  starWand.wrapperEmitter.once('NodeIQQNTWrapperSession/create/getMsgService', () => {
+  starWand.wrapperEmitter.once('NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService', () => {
     resolve(starWand)
   })
 

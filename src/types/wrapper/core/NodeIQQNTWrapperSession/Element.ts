@@ -354,7 +354,7 @@ export interface Element {
   pttElement?: PttElement
   videoElement?: VideoElement
   grayTipElement?: GrayTipElement
-  arkElement: ArkElement | null
+  arkElement?: ArkElement | null
   fileElement?: FileElement
   liveGiftElement?: null
   markdownElement?: null

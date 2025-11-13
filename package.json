@@ -2,7 +2,7 @@
   "name": "liteloader-star-wand",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "pnpm run lint:fix && rolldown -c rolldown.config.ts",
+    "build": "rolldown -c rolldown.config.ts",
     "lint:fix": "eslint --fix"
   },
   "dependencies": {

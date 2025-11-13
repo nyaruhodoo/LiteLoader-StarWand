@@ -1,7 +1,7 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 
 export const msgWithUrlInterceptors: WrapperInterceptors = {
-  'NodeIQQNTWrapperSession/create/getMsgService/checkMsgWithUrl:response': async function (
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/checkMsgWithUrl:response': async function (
     { applyRet },
   ) {
     const res = await applyRet

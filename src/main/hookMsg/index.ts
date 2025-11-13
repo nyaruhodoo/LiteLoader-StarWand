@@ -76,21 +76,21 @@ function ark2Text(msgInfo: MsgInfo) {
 }
 
 export const msgInterceptors: WrapperInterceptors = {
-  'NodeIQQNTWrapperSession/create/getMsgService/addKernelMsgListener/onRecvMsg': function ([msgInfoList]) {
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onRecvMsg': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
 
     ark2Text(msgInfo)
   },
-  'NodeIQQNTWrapperSession/create/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
 
     ark2Text(msgInfo)
   },
-  'NodeIQQNTWrapperSession/create/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
 
     for (const msgInfo of res.msgList) {
@@ -99,7 +99,7 @@ export const msgInterceptors: WrapperInterceptors = {
 
     return res
   },
-  'NodeIQQNTWrapperSession/create/getMsgService/getAioFirstViewLatestMsgs:response': async function ({ applyRet }) {
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getAioFirstViewLatestMsgs:response': async function ({ applyRet }) {
     const res = await applyRet
 
     for (const msgInfo of res.msgList) {

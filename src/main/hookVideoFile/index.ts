@@ -124,7 +124,7 @@ async function file2Img(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
 }
 
 export const videoFileEventInterceptors: WrapperInterceptors = {
-  'NodeIQQNTWrapperSession/create/getMsgService/sendMsg': function (params) {
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/sendMsg': function (params) {
     if (params[1].chatType === 8)
       return params
     if (params[2][0]?.elementType !== ElementType.FileElement)

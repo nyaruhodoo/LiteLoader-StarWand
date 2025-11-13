@@ -23,7 +23,7 @@ starWand.wrapperEmitter.addListener(
 )
 
 export const favEmojiInterceptors: WrapperInterceptors = {
-  'NodeIQQNTWrapperSession/create/getMsgService/fetchFavEmojiList:response': async function (
+  'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/fetchFavEmojiList:response': async function (
     { applyRet },
   ) {
     const res = await applyRet

@@ -4,17 +4,17 @@
  */
 export enum WrapperEventEnum {
   // QQ的日志
-  sendLog = 'NodeIQQNTWrapperSession/create/getNodeMiscService/sendLog',
+  sendLog = 'NodeIQQNTWrapperSession/getNTWrapperSession/getNodeMiscService/sendLog',
 
   // 登录成功，能拿到 uin,uid
   onQRCodeLoginSucceed = 'NodeIKernelLoginService/get/addKernelLoginListener/onQRCodeLoginSucceed',
 
   // 收到新消息
-  onRecvMsg = 'NodeIQQNTWrapperSession/create/getMsgService/addKernelMsgListener/onRecvMsg',
+  onRecvMsg = 'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onRecvMsg',
 
   // 发送消息
-  sendMsg = 'NodeIQQNTWrapperSession/create/getMsgService/sendMsg',
+  sendMsg = 'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/sendMsg',
 
   // 更新
-  fetchUnitedCommendConfig = 'NodeIQQNTWrapperSession/create/getUnitedConfigService/fetchUnitedCommendConfig',
+  fetchUnitedCommendConfig = 'NodeIQQNTWrapperSession/getNTWrapperSession/getUnitedConfigService/fetchUnitedCommendConfig',
 }

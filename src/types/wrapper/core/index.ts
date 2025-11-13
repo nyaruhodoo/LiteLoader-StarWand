@@ -23,76 +23,14 @@ type FilterListener<T extends string> = T extends `${string}Listener/${string}`
   : never
 
 export interface Wrapper {
-  // NodeIKernelECDHService: WrapperApiWithMethods
   NodeIQQNTWrapperEngine: WrapperApiWithMethods<NodeIQQNTWrapperEngine>
   NodeIKernelLoginService: WrapperApiWithMethods<NodeIKernelLoginService>
   NodeIOPSafePwdEdit: WrapperApiWithMethods<NodeIOPSafePwdEdit>
-  NodeIQQNTWrapperSession: WrapperApiWithMethods<
-    NodeIQQNTWrapperSession,
-    ['create']
-  >
-  // NodeIQQEmailService: WrapperApiWithMethods
-  // NodeIKernelBaseEmojiService: WrapperApiWithMethods
-  // NodeIKernelEmojiService: WrapperApiWithMethods
-  // NodeIShareToWechatService: WrapperApiWithMethods
-  // NodeIKernelLockService: WrapperApiWithMethods
-  // NodeIKernelGuildMsgService: WrapperApiWithMethods
-  // NodeIKernelBdhUploadService: WrapperApiWithMethods
-  // NodeIKernelAlbumService: WrapperApiWithMethods
-  // NodeIKernelProfileLikeService: WrapperApiWithMethods
-  // NodeIKernelNearbyProService: WrapperApiWithMethods
-  // NodeIKernelLiteBusinessService: WrapperApiWithMethods
-  // NodeIKernelGroupSchoolService: WrapperApiWithMethods
-  // NodeIKernelGroupTabService: WrapperApiWithMethods
-  // NodeIKernelRobotService: WrapperApiWithMethods
+  NodeIQQNTWrapperSession: {
+    getNTWrapperSession: NodeIQQNTWrapperSession
+  }
   NodeIO3MiscService: WrapperApiWithMethods<NodeIO3MiscService>
-  // NodeIKernelOnlineStatusService: WrapperApiWithMethods
-  // NodeIKernelTianShuService: WrapperApiWithMethods
-  // NodeIKernelQQPlayService: WrapperApiWithMethods
-  // NodeIKernelUnitedConfigService: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoHostService: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoGetAlbumListCallback: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoGetAllPhotoSimpleInfoCallback: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoGetPhotoInfoBatchCallback: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoGetPhotoCallback: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoDeletePhotoBatchCallback: WrapperApiWithMethods
-  // NodeIKernelWiFiPhotoClientService: WrapperApiWithMethods
-  // NodeIKernelUixConvertService: WrapperApiWithMethods
-  // NodeIKernelDbToolsService: WrapperApiWithMethods
-  // NodeIKernelTestPerformanceService: WrapperApiWithMethods
-  // NodeIKernelSkinService: WrapperApiWithMethods
-  // NodeIKernelTicketService: WrapperApiWithMethods
-  // NodeIKernelCollectionService: WrapperApiWithMethods
-  // NodeISpan: WrapperApiWithMethods
   NodeQQNTWrapperUtil: NodeQQNTWrapperUtil
-  // NodeIQQNTWrapperNetwork: WrapperApiWithMethods
-  // NodeIKernelGuildService: WrapperApiWithMethods
-  // NodeIKernelTipOffService: WrapperApiWithMethods
-  // NodeIKernelFileAssistantService: WrapperApiWithMethods
-  // NodeIKernelQiDianService: WrapperApiWithMethods
-  // NodeIKernelStorageCleanService: WrapperApiWithMethods
-  // NodeIKernelSettingService: WrapperApiWithMethods
-  // NodeIKernelYellowFaceForManagerService: WrapperApiWithMethods
-  // NodeIKernelYellowFaceService: WrapperApiWithMethods
-  // NodeIKernelNewFeedService: WrapperApiWithMethods
-  // NodeIKernelFeedService: WrapperApiWithMethods
-  // NodeIKernelRichMediaService: WrapperApiWithMethods
-  // NodeIKernelAvatarService: WrapperApiWithMethods
-  // NodeIKernelRDeliveryService: WrapperApiWithMethods
-  // NodeIKernelDirectSessionService: WrapperApiWithMethods
-  // NodeIKernelConfigMgrService: WrapperApiWithMethods
-  // NodeIKernelRecentContactService: WrapperApiWithMethods
-  // NodeIKernelProfileService: WrapperApiWithMethods
-  // NodeIKernelMsgService: WrapperApiWithMethods
-  // NodeIKernelGroupService: WrapperApiWithMethods
-  // NodeIKernelSearchService: WrapperApiWithMethods
-  // NodeIKernelBuddyService: WrapperApiWithMethods
-  // NodeIKernelMSFService: WrapperApiWithMethods
-  // NodeIKernelNodeMiscService: WrapperApiWithMethods
-  // NodeIGuildHotUpdateService: WrapperApiWithMethods
-  // NodeIKernelMsgBackupService: WrapperApiWithMethods
-  // NodeIKernelRemotingService: WrapperApiWithMethods
-  // NodeIKernelAVSDKService: WrapperApiWithMethods
 }
 export type WrapperPaths = DeepPath<Wrapper>
 export type WrapperResponsePaths = `${WrapperPaths}:response`
