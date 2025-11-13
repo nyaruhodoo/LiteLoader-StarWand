@@ -81,17 +81,11 @@ export const msgInterceptors: WrapperInterceptors = {
     if (!msgInfo)
       return
 
-    if (msgInfo.chatType !== 2)
-      return
-
     ark2Text(msgInfo)
   },
   'NodeIQQNTWrapperSession/create/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
-      return
-
-    if (msgInfo.chatType !== 2)
       return
 
     ark2Text(msgInfo)
@@ -100,9 +94,6 @@ export const msgInterceptors: WrapperInterceptors = {
     const res = await applyRet
 
     for (const msgInfo of res.msgList) {
-      if (msgInfo.chatType !== 2)
-        continue
-
       ark2Text(msgInfo)
     }
 
@@ -112,9 +103,6 @@ export const msgInterceptors: WrapperInterceptors = {
     const res = await applyRet
 
     for (const msgInfo of res.msgList) {
-      if (msgInfo.chatType !== 2)
-        continue
-
       ark2Text(msgInfo)
     }
 
