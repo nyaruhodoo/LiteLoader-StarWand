@@ -1,6 +1,12 @@
 {
+  "$schema": "https://raw.githubusercontent.com/qwqnt-community/types/main/plugin.schema.json",
   "name": "liteloader-star-wand",
   "main": "./dist/main/index.js",
+  "injects": {
+    "main": "./dist/main/index.js",
+    "preload": "./dist/preload/index.js",
+    "renderer": "./dist/renderer/index.js"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.ts",
     "lint:fix": "eslint --fix"
@@ -10,6 +16,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
+    "@qwqnt/types": "github:qwqnt-community/types",
     "@types/node": "^24.7.2",
     "@vitejs/plugin-vue": "^6.0.1",
     "autoprefixer": "^10.4.21",

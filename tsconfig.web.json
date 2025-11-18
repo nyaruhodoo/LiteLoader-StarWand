@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "module": "esnext",
-    "types": []
+    "types": ["@qwqnt/types/renderer"]
   },
   "include": ["src/renderer/**/*", "src/renderer/**/*.vue", "src/*", "src/types/**/*"]
 }

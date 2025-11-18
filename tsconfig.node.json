@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "module": "esnext",
-    "types": ["node", "electron"]
+    "types": ["node", "electron", "@qwqnt/types/main"]
   },
   "include": [
     "src/main/**/*",

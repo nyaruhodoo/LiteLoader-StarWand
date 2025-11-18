@@ -16,8 +16,8 @@ export const defaultConfig: ConfigType = {
   clickNum: {},
   minimumAmount: 200,
   randomDelay: {
-    min: 200,
-    max: 500,
+    min: 2000,
+    max: 5000,
   },
   redPackTextBlacklist: '挂&死&狗&测试',
   groupBlacklist: '',
