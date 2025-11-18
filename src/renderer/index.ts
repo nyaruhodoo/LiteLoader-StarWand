@@ -194,4 +194,4 @@ watchURLHash((hash) => {
   }
 })
 
-export { onSettingWindowCreated } from '@/renderer/configView'
+// export { onSettingWindowCreated } from '@/renderer/configView'

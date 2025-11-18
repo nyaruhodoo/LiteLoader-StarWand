@@ -1,12 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/qwqnt-community/types/main/plugin.schema.json",
-  "name": "liteloader-star-wand",
+  "name": "qwqnt-star-wand",
   "main": "./dist/main/index.js",
-  "injects": {
-    "main": "./dist/main/index.js",
-    "preload": "./dist/preload/index.js",
-    "renderer": "./dist/renderer/index.js"
-  },
   "scripts": {
     "build": "rolldown -c rolldown.config.ts",
     "lint:fix": "eslint --fix"
@@ -28,5 +23,12 @@
     "rollup-plugin-postcss": "^4.0.2",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.9.3"
+  },
+  "qwqnt": {
+    "injects": {
+      "main": "./dist/main/index.js",
+      "preload": "./dist/preload/index.js",
+      "renderer": "./dist/renderer/index.js"
+    }
   }
 }
