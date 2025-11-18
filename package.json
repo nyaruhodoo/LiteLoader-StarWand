@@ -25,7 +25,8 @@
     "typescript": "^5.9.3"
   },
   "qwqnt": {
-    "injects": {
+    "name": "qwqnt-star-wand",
+    "inject": {
       "main": "./dist/main/index.js",
       "preload": "./dist/preload/index.js",
       "renderer": "./dist/renderer/index.js"

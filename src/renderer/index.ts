@@ -1,15 +1,11 @@
+import { slug } from '@/manifest'
 import './index.css'
 
 function watchURLHash(callback: (hash: string) => unknown) {
-  if (!location.hash.includes('#/blank')) {
+  // @ts-expect-error  忽略错误
+  navigation.addEventListener('navigatesuccess', () => {
     callback(location.hash)
-  }
-  else {
-    // @ts-expect-error  忽略错误
-    navigation.addEventListener('navigatesuccess', () => {
-      callback(location.hash)
-    }, { once: true })
-  }
+  }, { once: true })
 }
 
 function summoningMagic() {
@@ -184,14 +180,10 @@ watchURLHash((hash) => {
   if (hash !== '#/main/message')
     return
 
-  const magicCssUrl = new URL('./index.css', import.meta.url).href
+  const magicCssUrl = `storage://plugins/${slug}/dist/renderer/index.css`
   const css = document.createElement('link')
   css.rel = 'stylesheet'
   css.href = magicCssUrl
   document.head.append(css)
-  css.onload = () => {
-    summoningMagic()
-  }
+  css.onload = summoningMagic
 })
-
-// export { onSettingWindowCreated } from '@/renderer/configView'
