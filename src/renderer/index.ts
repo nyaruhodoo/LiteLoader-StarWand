@@ -1,12 +1,5 @@
-import { slug } from '@/manifest'
+import { createStorageUrl, watchURLHash } from './utils'
 import './index.css'
-
-function watchURLHash(callback: (hash: string) => unknown) {
-  // @ts-expect-error  忽略错误
-  navigation.addEventListener('navigatesuccess', () => {
-    callback(location.hash)
-  }, { once: true })
-}
 
 function summoningMagic() {
   setTimeout(() => {
@@ -180,7 +173,7 @@ watchURLHash((hash) => {
   if (hash !== '#/main/message')
     return
 
-  const magicCssUrl = `storage://plugins/${slug}/dist/renderer/index.css`
+  const magicCssUrl = createStorageUrl('/dist/renderer/index.css')
   const css = document.createElement('link')
   css.rel = 'stylesheet'
   css.href = magicCssUrl
