@@ -1,4 +1,4 @@
-import { createStorageUrl, watchURLHash } from './utils'
+import { Utils } from './utils'
 import './index.css'
 
 function summoningMagic() {
@@ -169,11 +169,11 @@ function summoningStar(container: HTMLDivElement) {
 /**
  * init
  */
-watchURLHash((hash) => {
+Utils.watchURLHash((hash) => {
   if (hash !== '#/main/message')
     return
 
-  const magicCssUrl = createStorageUrl('/dist/renderer/index.css')
+  const magicCssUrl = Utils.createStorageUrl('/dist/renderer/index.css')
   const css = document.createElement('link')
   css.rel = 'stylesheet'
   css.href = magicCssUrl
