@@ -16,7 +16,7 @@ const configReactive = reactive(defaultConfig)
 const { redPackTextBlacklist, groupBlacklist, senderBlacklist, randomDelay, autoSendmsg, minimumAmount, skipPwd } = toRefs(configReactive)
 
 ;(async () => {
-  const newConfig = await Utils.getConfig()
+  const newConfig = await Utils.getConfig('renderer')
   for (const key in newConfig) {
     // @ts-expect-error  忽略错误
     configReactive[key] = newConfig[key]
@@ -28,7 +28,7 @@ const { redPackTextBlacklist, groupBlacklist, senderBlacklist, randomDelay, auto
  */
 watch(configReactive, (newVal) => {
   const copyVal = JSON.parse(JSON.stringify(newVal))
-  Utils.updateConfig(copyVal)
+  Utils.updateConfig(copyVal, 'renderer')
   // 每次配置更新后通知主线程和渲染线程
   contextBridgeApi.configUpdate(copyVal)
   new BroadcastChannel(slug).postMessage(copyVal)

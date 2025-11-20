@@ -7,7 +7,7 @@ import { starWand } from '../hook/hookWrapper'
 starWand.wrapperEmitter.addListener(
   WrapperEventEnum.sendMsg,
   async ({ params }) => {
-    const config = await Utils.getConfig()
+    const config = await Utils.getConfig('main')
     if (!config.clickNum)
       config.clickNum = {}
 
@@ -18,7 +18,7 @@ starWand.wrapperEmitter.addListener(
       config.clickNum[md5] = (config.clickNum[md5] || 0) + 1
     }
 
-    Utils.updateConfig(config)
+    Utils.updateConfig(config, 'main')
   },
 )
 
@@ -27,7 +27,7 @@ export const favEmojiInterceptors: WrapperInterceptors = {
     { applyRet },
   ) {
     const res = await applyRet
-    const config = await Utils.getConfig()
+    const config = await Utils.getConfig('main')
 
     for (const [md5, clickNum] of Object.entries(config.clickNum ?? {})) {
       const target = res.emojiInfoList.find((emoji) => {

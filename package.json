@@ -30,6 +30,9 @@
       "main": "./dist/main/index.js",
       "preload": "./dist/preload/index.js",
       "renderer": "./dist/renderer/index.js"
+    },
+    "dependencies": {
+      "qwqnt-plugin-settings": "^2.0.0"
     }
   }
 }

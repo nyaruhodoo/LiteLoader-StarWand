@@ -1,3 +1,5 @@
+import packageJson from '@/package'
+import { onSettingWindowCreated } from './configView'
 import { Utils } from './utils'
 import './index.css'
 
@@ -179,4 +181,12 @@ Utils.watchURLHash((hash) => {
   css.href = magicCssUrl
   document.head.append(css)
   css.onload = summoningMagic
+})
+
+/**
+ * Plugin Settings
+ */
+RendererEvents.onSettingsWindowCreated(async () => {
+  const view = await PluginSettings.renderer.registerPluginSettings(packageJson)
+  onSettingWindowCreated(view)
 })

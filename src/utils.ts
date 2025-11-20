@@ -6,20 +6,20 @@ export class Utils {
   /**
    * 初始化插件配置
    */
-  static async getConfig() {
-    // const oldConfig = await LiteLoader.api.config.get<ConfigType>(
-    //   slug,
-    //   defaultConfig,
-    // )
-    // const newConfig = this.mergeConfig(oldConfig, defaultConfig)
-    // return newConfig
-    return defaultConfig
+  static async getConfig(mode: 'renderer' | 'main' | 'preload'): Promise<ConfigType> {
+    const configUtils = PluginSettings[mode]
+    const oldConfig = configUtils.readConfig(slug, defaultConfig)
+    const newConfig = this.mergeConfig(oldConfig, defaultConfig)
+    return newConfig
   }
 
   /**
    * 更新插件配置
    */
-  static async updateConfig(config: ConfigType) {
+  static async updateConfig(config: ConfigType, mode: 'renderer' | 'main' | 'preload') {
+    const configUtils = PluginSettings[mode]
+    configUtils.writeConfig(slug, config)
+
     // await LiteLoader.api.config.set(slug, config)
     this.log('Config已更新', JSON.stringify(config, null, 2))
   }
