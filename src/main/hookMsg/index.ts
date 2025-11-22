@@ -1,5 +1,6 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
+import { starWand } from '../hook/hookWrapper'
 
 function ark2Text(msgInfo: MsgInfo) {
   for (const element of msgInfo.elements) {
@@ -89,7 +90,7 @@ export const msgInterceptors: WrapperInterceptors = {
       return
 
     if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-      throw new Error('阻止消息撤回')
+      throw new Error('阻止替换撤回消息')
     }
 
     ark2Text(msgInfo)
@@ -97,8 +98,20 @@ export const msgInterceptors: WrapperInterceptors = {
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const msgInfo of res.msgList) {
+    for (const [index, msgInfo] of res.msgList.entries()) {
       ark2Text(msgInfo)
+
+      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
+        const recallMsg = (await starWand.Session?.getMsgService().getRecallMsgsByMsgId({
+          chatType: msgInfo.chatType,
+          peerUid: msgInfo.peerUid,
+          guildId: msgInfo.guildId,
+        }, [msgInfo.msgId]))?.msgList[0]
+        if (recallMsg) {
+          recallMsg.msgType = 2
+          res.msgList[index] = recallMsg
+        }
+      }
     }
 
     return res
@@ -106,8 +119,20 @@ export const msgInterceptors: WrapperInterceptors = {
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getAioFirstViewLatestMsgs:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const msgInfo of res.msgList) {
+    for (const [index, msgInfo] of res.msgList.entries()) {
       ark2Text(msgInfo)
+
+      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
+        const recallMsg = (await starWand.Session?.getMsgService().getRecallMsgsByMsgId({
+          chatType: msgInfo.chatType,
+          peerUid: msgInfo.peerUid,
+          guildId: msgInfo.guildId,
+        }, [msgInfo.msgId]))?.msgList[0]
+        if (recallMsg) {
+          recallMsg.msgType = 2
+          res.msgList[index] = recallMsg
+        }
+      }
     }
 
     return res

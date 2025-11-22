@@ -57,7 +57,7 @@ export interface KernelMsgListener {
   /**
    * 消息撤回时触发
    */
-  onMsgRecall: () => void
+  onMsgRecall: (chatType: ChatType, from: string, p3: string) => void
 
   /**
    * 发送消息出错时触发
@@ -70,7 +70,7 @@ export interface KernelMsgListener {
   onRecvMsgSvrRspTransInfo: () => void
 
   /**
-   * 消息信息列表更新时触发(不是很确认)
+   * 消息信息列表更新时触发，比如撤回消息时会通过该函数去更新某条消息
    */
   onMsgInfoListUpdate: (msg: MsgInfo[]) => boolean
 
@@ -553,13 +553,15 @@ export interface NodeIKernelMsgService {
   getAllOnlineFileMsgs: () => any[] // 获取所有在线文件消息
   getLatestDbMsgs: () => any[] // 获取最新数据库消息
   getLastMessageList: () => any[] // 获取最后消息列表
-  // 获取首次查看的最新消息
+  /**
+   * 获取首次查看的最新消息
+   */
   getAioFirstViewLatestMsgs: () => WrapperAsyncResponse<{
     msgList: MsgInfo[]
   }>
   getMsgs: (filter: any) => any[] // 获取消息
   /**
-   * 获取消息的详情数据，似乎所有消息出现在视口时都会请求一次(只针对最新消息？)
+   * 获取消息的详情数据，拉旧消息时也会执行
    */
   getMsgsIncludeSelf: (peerInfo: PeerInfo, msgId: string, p1: number, p2: boolean) => WrapperAsyncResponse<{
     msgList: MsgInfo[]
@@ -569,7 +571,9 @@ export interface NodeIKernelMsgService {
   getMsgsBySeqRange: (startSeq: number, endSeq: number) => any[] // 根据序列范围获取消息
   getMsgsBySeqAndCount: (seq: number, count: number) => any[] // 根据序列和数量获取消息
   getMsgsByMsgId: (msgId: string) => any // 根据消息ID获取消息
-  getRecallMsgsByMsgId: (msgId: string) => any[] // 根据消息ID获取撤回的消息
+  getRecallMsgsByMsgId: (peer: PeerInfo, MsgId: string[]) => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }> // 根据消息ID获取撤回的消息
   getMsgsBySeqList: (seqList: number[]) => any[] // 根据序列列表获取消息
   getMsgsExt: (msgId: string) => any // 获取消息的扩展信息
   getSingleMsg: (msgId: string) => any // 获取单条消息

@@ -10,7 +10,7 @@ import { videoFileEventInterceptors } from './hookVideoFile';
   await hookWrapper({
     log: false,
     logDepth: null,
-    eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i, WrapperEventEnum.fetchUnitedCommendConfig, WrapperEventEnum.onMsgRecall],
+    eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i, WrapperEventEnum.fetchUnitedCommendConfig],
     eventInterceptors: {
       ...favEmojiInterceptors,
       ...msgWithUrlInterceptors,

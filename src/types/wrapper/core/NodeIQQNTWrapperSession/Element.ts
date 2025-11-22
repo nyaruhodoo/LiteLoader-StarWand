@@ -341,6 +341,11 @@ export enum ElementType {
   AvRecordElement = 21,
 }
 
+export enum MsgType {
+  General = 2,
+  GrayTip = 5,
+}
+
 export interface Element {
   elementType: ElementType
   elementId: string
@@ -401,10 +406,10 @@ export interface MsgInfo {
   cntSeq: string
   /** 聊天类型 */
   chatType: ChatType
-  /** 消息类型：2 代表系统通知类消息（如踢人通知） */
+  /** 消息类型，和元素类型强绑定？反正是不能瞎改 */
   msgType: number
   /** 子消息类型：1 代表具体系统通知子类型（细分消息场景） */
-  subMsgType: number
+  subMsgType: MsgType
   /** 发送类型：0 代表系统自动发送（非用户主动发送） */
   sendType: number
   /** 发送者UID（用户唯一标识，格式为 u_xxx） */
