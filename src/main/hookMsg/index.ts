@@ -88,6 +88,10 @@ export const msgInterceptors: WrapperInterceptors = {
     if (!msgInfo)
       return
 
+    if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
+      throw new Error('阻止消息撤回')
+    }
+
     ark2Text(msgInfo)
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {

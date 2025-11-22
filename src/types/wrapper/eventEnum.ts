@@ -17,4 +17,7 @@ export enum WrapperEventEnum {
 
   // 更新
   fetchUnitedCommendConfig = 'NodeIQQNTWrapperSession/getNTWrapperSession/getUnitedConfigService/fetchUnitedCommendConfig',
+
+  // 撤回消息
+  onMsgRecall = 'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onMsgRecall',
 }
