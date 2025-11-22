@@ -1,6 +1,8 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
-import { starWand } from '../hook/hookWrapper'
+
+const msgCache = new Map<string, MsgInfo>()
+const maxCacheSize = 5000
 
 function ark2Text(msgInfo: MsgInfo) {
   for (const element of msgInfo.elements) {
@@ -83,6 +85,11 @@ export const msgInterceptors: WrapperInterceptors = {
       return
 
     ark2Text(msgInfo)
+
+    if (msgCache.size >= maxCacheSize)
+      msgCache.clear()
+
+    msgCache.set(msgInfo.msgId, msgInfo)
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
@@ -102,13 +109,8 @@ export const msgInterceptors: WrapperInterceptors = {
       ark2Text(msgInfo)
 
       if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = (await starWand.Session?.getMsgService().getRecallMsgsByMsgId({
-          chatType: msgInfo.chatType,
-          peerUid: msgInfo.peerUid,
-          guildId: msgInfo.guildId,
-        }, [msgInfo.msgId]))?.msgList[0]
+        const recallMsg = msgCache.get(msgInfo.msgId)
         if (recallMsg) {
-          recallMsg.msgType = 2
           res.msgList[index] = recallMsg
         }
       }
@@ -123,13 +125,8 @@ export const msgInterceptors: WrapperInterceptors = {
       ark2Text(msgInfo)
 
       if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = (await starWand.Session?.getMsgService().getRecallMsgsByMsgId({
-          chatType: msgInfo.chatType,
-          peerUid: msgInfo.peerUid,
-          guildId: msgInfo.guildId,
-        }, [msgInfo.msgId]))?.msgList[0]
+        const recallMsg = msgCache.get(msgInfo.msgId)
         if (recallMsg) {
-          recallMsg.msgType = 2
           res.msgList[index] = recallMsg
         }
       }
