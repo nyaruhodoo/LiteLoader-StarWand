@@ -1,9 +1,6 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 
-const msgCache = new Map<string, MsgInfo>()
-const maxCacheSize = 5000
-
 function ark2Text(msgInfo: MsgInfo) {
   for (const element of msgInfo.elements) {
     if (element.elementType !== 10 || !element.arkElement)
@@ -85,35 +82,19 @@ export const msgInterceptors: WrapperInterceptors = {
       return
 
     ark2Text(msgInfo)
-
-    if (msgCache.size >= maxCacheSize)
-      msgCache.clear()
-
-    msgCache.set(msgInfo.msgId, msgInfo)
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
 
-    if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-      throw new Error('阻止替换撤回消息')
-    }
-
     ark2Text(msgInfo)
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const [index, msgInfo] of res.msgList.entries()) {
+    for (const [_, msgInfo] of res.msgList.entries()) {
       ark2Text(msgInfo)
-
-      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = msgCache.get(msgInfo.msgId)
-        if (recallMsg) {
-          res.msgList[index] = recallMsg
-        }
-      }
     }
 
     return res
@@ -121,15 +102,8 @@ export const msgInterceptors: WrapperInterceptors = {
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getAioFirstViewLatestMsgs:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const [index, msgInfo] of res.msgList.entries()) {
+    for (const [_, msgInfo] of res.msgList.entries()) {
       ark2Text(msgInfo)
-
-      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = msgCache.get(msgInfo.msgId)
-        if (recallMsg) {
-          res.msgList[index] = recallMsg
-        }
-      }
     }
 
     return res
