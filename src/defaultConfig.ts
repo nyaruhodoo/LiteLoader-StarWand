@@ -1,5 +1,4 @@
 export interface ConfigType {
-  clickNum: Record<string, number>
   minimumAmount: number
   randomDelay: {
     min: number
@@ -13,7 +12,6 @@ export interface ConfigType {
 }
 
 export const defaultConfig: ConfigType = {
-  clickNum: {},
   minimumAmount: 200,
   randomDelay: {
     min: 2000,
