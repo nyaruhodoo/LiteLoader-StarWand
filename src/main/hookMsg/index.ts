@@ -96,7 +96,7 @@ export const msgInterceptors: WrapperInterceptors = {
     if (!msgInfo)
       return
 
-    if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
+    if (msgInfo.elements.length === 1 && msgInfo.elements[0]?.grayTipElement?.revokeElement && !msgInfo.elements[0]?.grayTipElement?.revokeElement.isSelfOperate) {
       throw new Error('阻止替换撤回消息')
     }
 
