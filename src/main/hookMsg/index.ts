@@ -1,10 +1,14 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
+import { inspect } from 'node:util'
+import { RkeyImage } from './rkeyImage'
 
 const msgCache = new Map<string, MsgInfo>()
 const maxCacheSize = 5000
 
-function ark2Text(msgInfo: MsgInfo) {
+const rkeyImage = new RkeyImage()
+
+function arkToText(msgInfo: MsgInfo) {
   for (const element of msgInfo.elements) {
     if (element.elementType !== 10 || !element.arkElement)
       continue
@@ -78,13 +82,42 @@ function ark2Text(msgInfo: MsgInfo) {
   }
 }
 
+async function restoreRevokedMessage(msgList: MsgInfo[]) {
+  for (const [index, msgInfo] of msgList.entries()) {
+    if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
+      const recallMsg = msgCache.get(msgInfo.msgId)
+      if (recallMsg) {
+        for (const element of recallMsg.elements) {
+          if (element.picElement?.originImageUrl) {
+            const newImageUrl = await rkeyImage.getNewImgUrl(element.picElement.originImageUrl)
+            const newThumbPath = new Map<number, string>()
+            element.picElement.thumbPath.forEach((_, key) => {
+              newThumbPath.set(key, newImageUrl)
+            })
+            element.picElement.thumbPath = newThumbPath
+          }
+        }
+
+        msgList[index] = recallMsg
+      }
+    }
+  }
+}
+
 export const msgInterceptors: WrapperInterceptors = {
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onRecvMsg': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
 
-    ark2Text(msgInfo)
+    if (msgInfo.peerUid === '905509969') {
+      console.log(inspect(msgInfoList, {
+        depth: null,
+        colors: true,
+      }))
+    }
+
+    arkToText(msgInfo)
 
     if (msgCache.size >= maxCacheSize)
       msgCache.clear()
@@ -96,41 +129,33 @@ export const msgInterceptors: WrapperInterceptors = {
     if (!msgInfo)
       return
 
+    // 避免撤回消息被替换
     if (msgInfo.elements.length === 1 && msgInfo.elements[0]?.grayTipElement?.revokeElement && !msgInfo.elements[0]?.grayTipElement?.revokeElement.isSelfOperate) {
-      throw new Error('阻止替换撤回消息')
+      msgInfoList.length = 0
+      return
     }
 
-    ark2Text(msgInfo)
+    arkToText(msgInfo)
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const [index, msgInfo] of res.msgList.entries()) {
-      ark2Text(msgInfo)
-
-      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = msgCache.get(msgInfo.msgId)
-        if (recallMsg) {
-          res.msgList[index] = recallMsg
-        }
-      }
+    for (const msgInfo of res.msgList) {
+      arkToText(msgInfo)
     }
+
+    await restoreRevokedMessage(res.msgList)
 
     return res
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getAioFirstViewLatestMsgs:response': async function ({ applyRet }) {
     const res = await applyRet
 
-    for (const [index, msgInfo] of res.msgList.entries()) {
-      ark2Text(msgInfo)
-
-      if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-        const recallMsg = msgCache.get(msgInfo.msgId)
-        if (recallMsg) {
-          res.msgList[index] = recallMsg
-        }
-      }
+    for (const msgInfo of res.msgList) {
+      arkToText(msgInfo)
     }
+
+    await restoreRevokedMessage(res.msgList)
 
     return res
   },

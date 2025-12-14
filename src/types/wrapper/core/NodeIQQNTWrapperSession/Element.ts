@@ -1,17 +1,47 @@
 export interface PicElement {
-  md5HexStr: string
-  fileSize: number | string
+  picSubType: number
+  picSubSubType: null | number
+  fileName: string
+  fileSize: string
   picWidth: number
   picHeight: number
-  fileName: string
-  sourcePath: string
   original: boolean
-  picType: 1000 | 2000
-  picSubType: number
+  md5HexStr: string
+  sourcePath: string
+  thumbPath: Map<number, string>
+  transferStatus: number
+  progress: number
+  picType: number
+  invalidState: number
   fileUuid: string
   fileSubId: string
   thumbFileSize: number
+  fileBizId: null | string | number
+  downloadIndex: null | number
   summary: string
+  emojiFrom: null | string
+  emojiWebUrl: null | string
+  emojiAd: {
+    url: string
+    desc: string
+  }
+  emojiMall: {
+    packageId: number
+    emojiId: number
+  }
+  emojiZplan: {
+    actionId: number
+    actionName: string
+    actionType: number
+    playerNumber: number
+    peerUid: string
+    bytesReserveInfo: string
+  }
+  originImageMd5: string
+  originImageUrl: string
+  import_rich_media_context: null
+  isFlashPic: null | boolean
+  storeID: number
 }
 
 export interface GrayTipElement {
