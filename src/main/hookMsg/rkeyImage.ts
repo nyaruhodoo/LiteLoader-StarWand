@@ -55,7 +55,6 @@ export class RkeyImage {
       throw new Error(response.statusText)
     }
 
-    const data = await response.json()
-    return data
+    return await response.json()
   }
 }
