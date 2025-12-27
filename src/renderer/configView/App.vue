@@ -39,7 +39,7 @@ async function openDevTools() {
     'getSettingService/openUrlInIM',
     ['https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/'],
   )
-  console.log(res)
+  Utils.log(res)
 }
 </script>
 
