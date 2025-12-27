@@ -9,9 +9,6 @@ let needsInit = false
 
 function mergeConfig(instanceConfig: ConfigType, pluginConfig: ConfigType): ConfigType {
   return {
-    log: instanceConfig.log,
-    logDepth: instanceConfig.logDepth,
-    logType: instanceConfig.logType,
     eventBlacklist: Array.from(
       new Set([...(instanceConfig.eventBlacklist || []), ...(pluginConfig.eventBlacklist || [])]),
     ),

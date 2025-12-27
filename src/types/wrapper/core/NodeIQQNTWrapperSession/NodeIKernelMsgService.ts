@@ -57,7 +57,7 @@ export interface KernelMsgListener {
   /**
    * 消息撤回时触发
    */
-  onMsgRecall: (chatType: ChatType, from: string, p3: string) => void
+  onMsgRecall: (chatType: ChatType, uid: string, msgSeq: string) => boolean
 
   /**
    * 发送消息出错时触发

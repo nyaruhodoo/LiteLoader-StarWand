@@ -9,6 +9,7 @@ export interface ConfigType {
   senderBlacklist: string
   skipPwd: boolean
   autoSendmsg: string
+  devPort: number
 }
 
 export const defaultConfig: ConfigType = {
@@ -22,4 +23,5 @@ export const defaultConfig: ConfigType = {
   senderBlacklist: '',
   skipPwd: false,
   autoSendmsg: '谢谢',
+  devPort: 3666,
 }

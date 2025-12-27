@@ -1,3 +1,4 @@
+import type { FnTracePayload } from './socket'
 import type {
   ListenerPaths,
   Wrapper,
@@ -8,21 +9,10 @@ import type {
 } from '@/types/wrapper/core'
 import type { NodeIQQNTWrapperSession } from '@/types/wrapper/core/NodeIQQNTWrapperSession'
 import { EventEmitter } from 'node:events'
-import { inspect } from 'node:util'
+import { WrapperEventEnum } from '@/types/wrapper/eventEnum'
+import { debugServer } from './socket'
 
 export interface ConfigType {
-  /**
-   * 是否开启log
-   */
-  log?: boolean | RegExp
-  /**
-   * 调整 inspect 模式下的打印深度
-   */
-  logDepth?: number | null
-  /**
-   * json 可以完整打印，inspect 格式更好看
-   */
-  logType?: 'inspect' | 'json'
   /**
    * 需要中断的黑名单事件
    */
@@ -31,6 +21,28 @@ export interface ConfigType {
    * 事件拦截器，可以拦截请求参数以及返回值
    */
   eventInterceptors?: WrapperInterceptors
+}
+
+/**
+ * 根据字符串特征返回指定关键词
+ * @param {string} str - 待检测的字符串
+ * @returns {string|undefined} 匹配到则返回Listener/Service，无匹配返回undefined
+ */
+function getTargetKeyword(str: string) {
+  // 去除字符串首尾空格（避免空格影响匹配）
+  const trimmedStr = str.trim()
+
+  // 1. 优先检测是否包含 "Listener"（不区分大小写可修改为：trimmedStr.toLowerCase().includes('listener')）
+  if (trimmedStr.includes('Listener')) {
+    return 'Listener'
+  }
+
+  // 2. 检测是否以 "Service" 结尾（不区分大小写可修改为：trimmedStr.toLowerCase().endsWith('service')）
+  if (trimmedStr.endsWith('Service')) {
+    return 'Service'
+  }
+
+  return 'Function'
 }
 
 export class StarWand {
@@ -48,65 +60,50 @@ export class StarWand {
   ) {}
 
   /**
-   * 用于打印函数调用结果(感觉有点low)
+   * 用于打印函数调用结果
    */
   logFn({
     argArray,
     applyRet,
     key,
+    status,
   }: {
     argArray: unknown[]
     applyRet: unknown
     key: string
+    status?: FnTracePayload['status']
   }) {
-    if (!this.config.log)
-      return
-    if (typeof this.config.log !== 'boolean' && !this.config.log.test(key))
-      return
-
-    const depth = this.config.logDepth
-
-    const logUtils = {
-      inspect(params: unknown) {
-        return inspect(params, { depth, colors: true })
-      },
-      json(params: unknown) {
-        return JSON.stringify(params, null, 2)
-      },
-    }
-
-    const log = logUtils[this.config.logType ?? 'inspect']
-
-    console.log('-----------------------------------------------')
-    console.log(`${key} 被调用`)
-    argArray.length && console.log(`参数: `, log(argArray))
-
     if (applyRet instanceof Promise) {
-      console.log('返回值为 Promise，请观察后续打印内容')
       applyRet.then(
         (res) => {
-          console.log(`${key} 返回值: `)
-          console.log(log(res))
+          debugServer.sendTrace({
+            callPath: key,
+            requestParams: argArray,
+            responseParams: res,
+            status: 'ok',
+            type: 'AsyncFunction',
+          })
         },
         (err) => {
-          console.log(`${key} 返回值: `)
-          console.log(log(err))
+          debugServer.sendTrace({
+            callPath: key,
+            requestParams: argArray,
+            responseParams: err,
+            status: 'error',
+            type: 'AsyncFunction',
+          })
         },
       )
     }
     else {
-      console.log(`返回值: `, log(applyRet))
-
-      if (typeof applyRet === 'object' && applyRet) {
-        const retPropertyNames = Object.getOwnPropertyNames(applyRet)
-        retPropertyNames.length
-        && console.log(`返回值 keys: `, log(retPropertyNames))
-
-        console.log(
-          `原型 keys: `,
-          log(Object.getOwnPropertyNames(Object.getPrototypeOf(applyRet))),
-        )
-      }
+      const type = getTargetKeyword(key)
+      debugServer.sendTrace({
+        callPath: key,
+        requestParams: argArray,
+        responseParams: type === 'Service' ? Object.getOwnPropertyNames(Object.getPrototypeOf(applyRet)) : applyRet,
+        type,
+        status,
+      })
     }
   }
 
@@ -141,8 +138,15 @@ export class StarWand {
               return value.test(key)
             }
           })
-          if (isReturn)
+          if (isReturn) {
+            key !== WrapperEventEnum.sendLog && this.logFn({
+              argArray: args,
+              applyRet: undefined,
+              key,
+              status: 'cancel',
+            })
             return
+          }
 
           // 特殊处理 Listener
           if (key.endsWith('Listener')) {
@@ -175,100 +179,113 @@ export class StarWand {
             }
           }
 
-          // 请求拦截器
-          args
-            = (() => {
+          try {
+            // 请求拦截器
+            args
+              = (() => {
               // @ts-expect-error  忽略此处错误
-              if (!this.config.eventInterceptors?.[key])
-                return
-              // @ts-expect-error  忽略此处错误
-              if (Array.isArray(this.config.eventInterceptors[key])) {
+                if (!this.config.eventInterceptors?.[key])
+                  return
                 // @ts-expect-error  忽略此处错误
-                return this.config.eventInterceptors[key].reduce(
-                  (acc, interceptor) => {
-                    return interceptor(acc ?? args)
-                  },
-                  args,
-                )
-              }
-              // @ts-expect-error  忽略此处错误
-              return this.config.eventInterceptors?.[key]?.(args)
-            })() ?? args
+                if (Array.isArray(this.config.eventInterceptors[key])) {
+                // @ts-expect-error  忽略此处错误
+                  return this.config.eventInterceptors[key].reduce(
+                    (acc, interceptor) => {
+                      return interceptor(acc ?? args)
+                    },
+                    args,
+                  )
+                }
+                // @ts-expect-error  忽略此处错误
+                return this.config.eventInterceptors?.[key]?.(args)
+              })() ?? args
 
-          let applyRet = instance[p](...args)
+            // 触发！
+            let applyRet = instance[p](...args)
 
-          // 响应拦截器
-          applyRet
-            = (() => {
+            // 响应拦截器
+            applyRet
+              = (() => {
               // @ts-expect-error  忽略此处错误
-              if (!this.config.eventInterceptors?.[`${key}:response`])
-                return
-              if (
+                if (!this.config.eventInterceptors?.[`${key}:response`])
+                  return
+                if (
                 // @ts-expect-error  忽略此处错误
-                Array.isArray(this.config.eventInterceptors[`${key}:response`])
-              ) {
+                  Array.isArray(this.config.eventInterceptors[`${key}:response`])
+                ) {
                 // @ts-expect-error  忽略此处错误
-                return this.config.eventInterceptors[`${key}:response`].reduce(
+                  return this.config.eventInterceptors[`${key}:response`].reduce(
                   // @ts-expect-error  忽略此处错误
-                  (acc, interceptor) => {
-                    return interceptor({
-                      applyRet: acc ?? applyRet,
-                      params: args,
-                    })
-                  },
-                  applyRet,
+                    (acc, interceptor) => {
+                      return interceptor({
+                        applyRet: acc ?? applyRet,
+                        params: args,
+                      })
+                    },
+                    applyRet,
+                  )
+                }
+                // @ts-expect-error  忽略此处错误
+                return this.config.eventInterceptors?.[`${key}:response`]?.(
+                  { applyRet, params: args },
                 )
-              }
-              // @ts-expect-error  忽略此处错误
-              return this.config.eventInterceptors?.[`${key}:response`]?.(
-                { applyRet, params: args },
-              )
-            })() ?? applyRet
+              })() ?? applyRet
 
-          // Service 需额外处理
-          if (key.endsWith('Service')) {
-            applyRet = this.hookInstance({
-              instance: applyRet as Record<string, unknown>,
-              rootKey: key,
-            })
-          }
-
-          if (applyRet instanceof Promise) {
-            applyRet.then(
-              (res) => {
-                const emitData = {
-                  applyRet: res,
-                  params: args,
-                }
-                // @ts-expect-error  - 我都有点看不太懂了
-                this.wrapperEmitter.emit(key, emitData)
-              },
-              (err) => {
-                const emitData = {
-                  applyRet: err,
-                  params: args,
-                }
-                // @ts-expect-error  - 我都有点看不太懂了
-                this.wrapperEmitter.emit(key, emitData)
-              },
-            )
-          }
-          else {
-            const emitData = {
-              applyRet,
-              params: args,
+            // Service 需额外处理
+            if (key.endsWith('Service')) {
+              applyRet = this.hookInstance({
+                instance: applyRet as Record<string, unknown>,
+                rootKey: key,
+              })
             }
-            // @ts-expect-error  - 我都有点看不太懂了
-            this.wrapperEmitter.emit(key, emitData)
+
+            // 额外派发的emitter
+            if (applyRet instanceof Promise) {
+              applyRet.then(
+                (res) => {
+                  const emitData = {
+                    applyRet: res,
+                    params: args,
+                  }
+                  // @ts-expect-error  - 我都有点看不太懂了
+                  this.wrapperEmitter.emit(key, emitData)
+                },
+                (err) => {
+                  const emitData = {
+                    applyRet: err,
+                    params: args,
+                  }
+                  // @ts-expect-error  - 我都有点看不太懂了
+                  this.wrapperEmitter.emit(key, emitData)
+                },
+              )
+            }
+            else {
+              const emitData = {
+                applyRet,
+                params: args,
+              }
+              // @ts-expect-error  - 我都有点看不太懂了
+              this.wrapperEmitter.emit(key, emitData)
+            }
+
+            this.logFn({
+              argArray: args,
+              applyRet,
+              key,
+            })
+
+            return applyRet
           }
-
-          this.logFn({
-            argArray: args,
-            applyRet,
-            key,
-          })
-
-          return applyRet
+          catch (error) {
+            this.logFn({
+              argArray: args,
+              applyRet: error,
+              key,
+              status: 'error',
+            })
+            throw error
+          }
         }
       },
     })

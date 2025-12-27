@@ -102,4 +102,6 @@ export interface NodeIKernelSettingService {
 
   /** 使用 QQ 浏览器打开 URL */
   openUrlWithQQBrowser: (url: string) => Promise<void>
+
+  openUrlInIM: (url: string) => undefined
 }

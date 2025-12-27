@@ -33,6 +33,14 @@ watch(configReactive, (newVal) => {
   contextBridgeApi.configUpdate(copyVal)
   new BroadcastChannel(slug).postMessage(copyVal)
 })
+
+async function openDevTools() {
+  const res = await contextBridgeApi['starWand:session-invoke-method'](
+    'getSettingService/openUrlInIM',
+    ['https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/'],
+  )
+  console.log(res)
+}
 </script>
 
 <template>
@@ -60,6 +68,12 @@ watch(configReactive, (newVal) => {
     </ConfigItem>
     <ConfigItem title="跳过发言领取口令红包">
       <NSwitch v-model="skipPwd" />
+    </ConfigItem>
+  </ConfigList>
+
+  <ConfigList title="杂项">
+    <ConfigItem title="DevTools">
+      <a href="https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/" @click.prevent="openDevTools">在线地址</a>
     </ConfigItem>
   </ConfigList>
 </template>
