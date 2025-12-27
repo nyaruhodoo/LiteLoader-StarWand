@@ -582,7 +582,9 @@ export interface NodeIKernelMsgService {
   getSingleMsg: (msgId: string) => any // 获取单条消息
   getSourceOfReplyMsg: (msgId: string) => any // 获取回复消息的来源
   getSourceOfReplyMsgV2: (msgId: string) => any // 获取回复消息的来源（V2版本）
-  getMsgByClientSeqAndTime: (clientSeq: number, time: number) => any // 根据客户端序列和时间获取消息
+  getMsgByClientSeqAndTime: (peerInfo: PeerInfo, seq: string, time: string) => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }> // 根据客户端序列和时间获取消息
   getSourceOfReplyMsgByClientSeqAndTime: (clientSeq: number, time: number) => any // 根据客户端序列和时间获取回复消息的来源
   getMsgsByTypeFilter: (type: string) => any[] // 根据类型过滤获取消息
   getMsgsByTypeFilters: (types: string[]) => any[] // 根据类型过滤获取多条消息
