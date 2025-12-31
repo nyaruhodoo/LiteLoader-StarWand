@@ -1,7 +1,38 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
-import { inspect } from 'node:util'
+import { writeFile } from 'node:fs/promises'
 import { RkeyImage } from './rkeyImage'
+
+export async function simpleDownload(imageUrl: string, targetPath: string) {
+  try {
+    // 1. 发起fetch请求，校验响应是否成功
+    const response = await fetch(imageUrl)
+    if (!response.ok) {
+      throw new Error(`图片请求失败，状态码：${response.status} ${response.statusText}`)
+    }
+
+    // 2. 校验响应体是否存在
+    if (!response.body) {
+      throw new Error('图片响应体为空，无法下载')
+    }
+
+    // 3. 读取响应为ArrayBuffer并转换为Buffer
+    const arrayBuffer = await response.arrayBuffer()
+    // eslint-disable-next-line node/prefer-global/buffer
+    const buffer = Buffer.from(arrayBuffer)
+
+    // 4. 写入指定路径（目录已存在，直接写文件）
+    await writeFile(targetPath, buffer)
+
+    console.log('下载完成：', targetPath)
+  }
+  catch (error) {
+    // 统一捕获错误并提示
+    const errMsg = error instanceof Error ? error.message : '未知错误'
+    console.error(`下载失败【${targetPath}】：`, errMsg)
+    throw error // 可选：抛出错误让上层处理
+  }
+}
 
 const msgCache = new Map<string, MsgInfo>()
 const maxCacheSize = 5000
@@ -96,9 +127,13 @@ async function restoreRevokedMessage(msgList: MsgInfo[]) {
               newThumbPath.set(key, newImageUrl)
             })
             element.picElement.thumbPath = newThumbPath
+            // const path = element.picElement.thumbPath.get(0)
+            // path && await simpleDownload(newImageUrl, path)
           }
         }
 
+        // @ts-expect-error  忽略错误
+        recallMsg._recallMsg = true
         msgList[index] = recallMsg
       }
     }
@@ -110,13 +145,6 @@ export const msgInterceptors: WrapperInterceptors = {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
-
-    if (msgInfo.peerUid === '905509969') {
-      console.log(inspect(msgInfoList, {
-        depth: null,
-        colors: true,
-      }))
-    }
 
     arkToText(msgInfoList)
 
@@ -155,4 +183,5 @@ export const msgInterceptors: WrapperInterceptors = {
 
     return res
   },
+
 }

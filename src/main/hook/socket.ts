@@ -74,11 +74,15 @@ class NodeDebugger {
 
     try {
       // eslint-disable-next-line no-new-func
-      const fn = new Function(`return (async () => { return ${code.trim()} })()`)
+      const fn = new Function(`return (async () => { ${code.trim()} })()`)
 
       const res = await fn()
 
-      Utils.log(`[Remote Execute]: ${res}`)
+      Utils.log(`[Remote Execute]:`)
+      console.log(inspect(res, {
+        depth: null,
+        colors: true,
+      }))
 
       this.mainSocket.emit('execute-result', {
         success: 0,

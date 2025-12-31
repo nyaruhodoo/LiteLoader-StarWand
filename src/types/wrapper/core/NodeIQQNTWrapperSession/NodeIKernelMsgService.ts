@@ -568,8 +568,14 @@ export interface NodeIKernelMsgService {
   }>
   getMsgsWithMsgTimeAndClientSeqForC2C: () => any[] // 获取C2C消息及其时间和客户端序列
   getMsgsWithStatus: (status: any) => any[] // 获取特定状态的消息
-  getMsgsBySeqRange: (startSeq: number, endSeq: number) => any[] // 根据序列范围获取消息
-  getMsgsBySeqAndCount: (seq: number, count: number) => any[] // 根据序列和数量获取消息
+  // 根据序列范围获取消息
+  getMsgsBySeqRange: (startSeq: number, endSeq: number) => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }>
+  // 根据序列和数量获取消息
+  getMsgsBySeqAndCount: (peer: PeerInfo, seq: string, count: number, p4: unknown, p5: unknown) => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }>
   getMsgsByMsgId: (msgId: string) => any // 根据消息ID获取消息
   /**
    * 没卵用!!!只能获取自己撤回过的消息
@@ -577,7 +583,9 @@ export interface NodeIKernelMsgService {
   getRecallMsgsByMsgId: (peer: PeerInfo, MsgId: string[]) => WrapperAsyncResponse<{
     msgList: MsgInfo[]
   }>
-  getMsgsBySeqList: (seqList: number[]) => any[] // 根据序列列表获取消息
+  getMsgsBySeqList: (seqList: number[]) => WrapperAsyncResponse<{
+    msgList: MsgInfo[]
+  }> // 根据序列列表获取消息
   getMsgsExt: (msgId: string) => any // 获取消息的扩展信息
   getSingleMsg: (msgId: string) => any // 获取单条消息
   getSourceOfReplyMsg: (msgId: string) => any // 获取回复消息的来源
