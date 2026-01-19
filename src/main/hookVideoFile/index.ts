@@ -61,7 +61,6 @@ async function file2Video(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
   if (!oldThumbPath)
     throw new Error('视频封面丢失')
 
-  // BUG: 部分视频QQ无法生成封面，懒得修😔
   await Promise.all([Utils.copyFileWithDirCheck(filePath, uploadPath), Utils.checkFileExists(oldThumbPath)])
 
   const newThumbPath = videoPath2ThumbPath(uploadPath)
@@ -118,6 +117,8 @@ async function file2Img(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
       summary: '',
     },
   } as const
+
+  // @ts-expect-error  忽略错误
   sendMsg[2][0] = imgElement
 
   return starWand?.Session?.getMsgService().sendMsg(...sendMsg)

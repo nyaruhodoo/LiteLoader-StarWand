@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
-import { access, constants, copyFile, mkdir } from 'node:fs/promises'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { access, constants, copyFile, mkdir, writeFile } from 'node:fs/promises'
 import path, { extname } from 'node:path'
+import { blackImgBase64 } from './blackImg'
 
 export class Utils {
   /**
@@ -32,7 +33,7 @@ export class Utils {
   /**
    * 监听文件是否已创建
    */
-  static checkFileExists(filePath: string, interval: number = 200, maxAttempts: number = 10) {
+  static checkFileExists(filePath: string) {
     const { promise, resolve, reject } = Promise.withResolvers()
     let attempts = 0
 
@@ -43,10 +44,20 @@ export class Utils {
         resolve(filePath)
       }
       catch {
-        if (attempts > maxAttempts) {
-          return reject(new Error('找不到视频封面'))
+        if (attempts > 5) {
+          try {
+            const pureBase64 = blackImgBase64.replace(/^data:image\/\w+;base64,/, '')
+
+            // eslint-disable-next-line node/prefer-global/buffer
+            const imgBuffer = Buffer.from(pureBase64, 'base64')
+            await writeFile(filePath, imgBuffer)
+            resolve(filePath)
+          }
+          catch {
+            reject(new Error('创建封面图失败'))
+          }
         }
-        setTimeout(check, interval)
+        setTimeout(check, 200)
       }
     }
     check()
