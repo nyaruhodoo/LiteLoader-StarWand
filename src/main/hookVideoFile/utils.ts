@@ -34,6 +34,10 @@ export class Utils {
    * 监听文件是否已创建
    */
   static checkFileExists(filePath: string) {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('文件路径不能为空且必须为字符串')
+    }
+
     const { promise, resolve, reject } = Promise.withResolvers()
     let attempts = 0
 
@@ -44,7 +48,7 @@ export class Utils {
         resolve(filePath)
       }
       catch {
-        if (attempts > 5) {
+        if (attempts >= 5) {
           try {
             const pureBase64 = blackImgBase64.replace(/^data:image\/\w+;base64,/, '')
 
@@ -56,6 +60,8 @@ export class Utils {
           catch {
             reject(new Error('创建封面图失败'))
           }
+
+          return
         }
         setTimeout(check, 200)
       }
