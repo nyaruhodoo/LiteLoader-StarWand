@@ -1,7 +1,9 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { FileElement } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 import type { NodeIKernelMsgService } from '@/types/wrapper/core/NodeIQQNTWrapperSession/NodeIKernelMsgService'
+import { readFile, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, join } from 'node:path'
+import { audioToPcm, silkEncode } from '@acidify/codec'
 import { ElementType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 import { starWand } from '../hook/hookWrapper'
 import { Utils } from './utils'
@@ -124,6 +126,67 @@ async function file2Img(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
   return starWand?.Session?.getMsgService().sendMsg(...sendMsg)
 }
 
+async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>) {
+  try {
+    const { filePath, fileSize } = sendMsg[2][0]?.fileElement as FileElement
+    const md5HexStr = Utils.getFileMD5(filePath)
+
+    const uploadPath = starWand?.Session?.getMsgService().getRichMediaFilePathForGuild({
+      md5HexStr,
+      fileName: '.amr',
+      elementType: 4,
+      elementSubType: 0,
+      thumbSize: 0,
+      needCreate: true,
+      downloadType: 1,
+      file_uuid: '',
+    })
+
+    if (!uploadPath)
+      throw new Error('无法获取音频上传路径')
+
+    const buffer = await readFile(filePath)
+    const pcmBuffer = await audioToPcm(buffer)
+    // QQ语音是用的这个格式？其实我不是很懂
+    const silkBuffer = await silkEncode(pcmBuffer)
+
+    await Utils.bufferToFile(silkBuffer, uploadPath)
+
+    const pttElement = {
+      elementType: ElementType.PttElement,
+      elementId: '',
+      pttElement: {
+        fileName: `${md5HexStr}.amr`,
+        filePath: uploadPath,
+        md5HexStr,
+        fileSize,
+        duration: await Utils.getPcmDuration(buffer),
+        formatType: 1,
+        voiceType: 1,
+        voiceChangeType: 0,
+        canConvert2Text: true,
+        // 不知道怎么算，随意了
+        waveAmplitudes: [29, 29, 114, 144, 144, 144],
+        fileSubId: '',
+        playState: 1,
+        autoConvertText: 0,
+        storeID: 0,
+        otherBusinessInfo: {
+          aiVoiceType: 0,
+        },
+      },
+    } as const
+
+    // @ts-expect-error  忽略错误
+    sendMsg[2][0] = pttElement
+
+    return starWand?.Session?.getMsgService().sendMsg(...sendMsg)
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
 export const videoFileEventInterceptors: WrapperInterceptors = {
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/sendMsg': function (params) {
     if (params[1].chatType === 8)
@@ -139,12 +202,17 @@ export const videoFileEventInterceptors: WrapperInterceptors = {
 
     if (Utils.isVideoFile(filePath)) {
       file2Video(params)
-      throw new Error('喵喵喵')
+      throw new Error('已转换为小视频消息')
     }
 
     if (Utils.isImgFile(filePath)) {
       file2Img(params)
-      throw new Error('喵喵喵')
+      throw new Error('已转换为图片消息')
+    }
+
+    if (Utils.isAudioFile(filePath)) {
+      file2Audio(params)
+      throw new Error('已经转换为语音消息')
     }
 
     return params
