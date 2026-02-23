@@ -1,7 +1,7 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { FileElement } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 import type { NodeIKernelMsgService } from '@/types/wrapper/core/NodeIQQNTWrapperSession/NodeIKernelMsgService'
-import { readFile, writeFile } from 'node:fs/promises'
+import { access, constants, readFile } from 'node:fs/promises'
 import { basename, dirname, extname, join } from 'node:path'
 import { audioToPcm, silkEncode } from '@acidify/codec'
 import { ElementType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
@@ -146,11 +146,24 @@ async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
       throw new Error('无法获取音频上传路径')
 
     const buffer = await readFile(filePath)
-    const pcmBuffer = await audioToPcm(buffer)
-    // QQ语音是用的这个格式？其实我不是很懂
-    const silkBuffer = await silkEncode(pcmBuffer)
 
-    await Utils.bufferToFile(silkBuffer, uploadPath)
+    // --- 新增逻辑：检查文件是否存在 ---
+    let fileExists = false
+    try {
+      await access(uploadPath, constants.F_OK)
+      fileExists = true
+    }
+    catch {
+      fileExists = false
+    }
+
+    if (!fileExists) {
+      const pcmBuffer = await audioToPcm(buffer)
+      // QQ语音是用的这个格式？其实我不是很懂
+      const silkBuffer = await silkEncode(pcmBuffer)
+
+      await Utils.bufferToFile(silkBuffer, uploadPath)
+    }
 
     const pttElement = {
       elementType: ElementType.PttElement,
