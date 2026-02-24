@@ -82,7 +82,6 @@ export class Utils {
           try {
             const pureBase64 = blackImgBase64.replace(/^data:image\/\w+;base64,/, '')
 
-            // eslint-disable-next-line node/prefer-global/buffer
             const imgBuffer = Buffer.from(pureBase64, 'base64')
             await writeFile(filePath, imgBuffer)
             resolve(filePath)
@@ -119,7 +118,6 @@ export class Utils {
     await copyFile(oldPath, newPath)
   }
 
-  // eslint-disable-next-line node/prefer-global/buffer
   static async bufferToFile(buffer: Buffer, filePath: string): Promise<void> {
     try {
     // 1. 解析 filePath 的目录部分
@@ -141,8 +139,7 @@ export class Utils {
     }
   }
 
-  // eslint-disable-next-line node/prefer-global/buffer
-  static async getPcmDuration(buffer: Buffer) {
+  static async getAudioDuration(buffer: Buffer) {
     const metadata = await parseBuffer(buffer, 'audio/mpeg')
     return ~~(metadata.format.duration ?? 0) // 返回值单位是秒 (seconds)
   }

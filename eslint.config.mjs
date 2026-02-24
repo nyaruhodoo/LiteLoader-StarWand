@@ -10,6 +10,7 @@ const config = antfu({
   },
   rules: {
     'no-console': 'off',
+    'node/prefer-global/buffer': 'off',
   },
 })
 

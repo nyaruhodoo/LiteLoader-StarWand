@@ -172,7 +172,7 @@ async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
         filePath: uploadPath,
         md5HexStr,
         fileSize,
-        duration: await Utils.getPcmDuration(buffer),
+        duration: await Utils.getAudioDuration(buffer),
         formatType: 1,
         voiceType: 1,
         voiceChangeType: 0,
