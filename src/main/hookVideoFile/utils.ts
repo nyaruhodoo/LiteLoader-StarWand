@@ -1,7 +1,9 @@
+import { exec } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { access, constants, copyFile, mkdir, writeFile } from 'node:fs/promises'
-import { dirname, extname } from 'node:path'
+import { tmpdir } from 'node:os'
+import { dirname, extname, join } from 'node:path'
 import { parseBuffer } from 'music-metadata'
 import { blackImgBase64 } from './blackImg'
 
@@ -143,5 +145,72 @@ export class Utils {
   static async getPcmDuration(buffer: Buffer) {
     const metadata = await parseBuffer(buffer, 'audio/mpeg')
     return ~~(metadata.format.duration ?? 0) // 返回值单位是秒 (seconds)
+  }
+
+  /**
+   * 转换/重新编码 MP3 文件（默认输出到 Windows 临时目录）
+   */
+  static async convertToMp3(inputPath: string, outputPath?: string, options = {
+    bitrate: 128,
+    sampleRate: 44100,
+    channels: 2,
+  }) {
+    // 验证输入文件是否存在
+    try {
+      await access(inputPath)
+    }
+    catch {
+      throw new Error(`输入文件不存在: ${inputPath}`)
+    }
+
+    // 处理输出路径：未传则使用 Windows 临时目录生成唯一文件名
+    let finalOutputPath = outputPath
+    if (!finalOutputPath) {
+    // 获取 Windows 临时目录（C:\Users\[用户名]\AppData\Local\Temp）
+      const tempDir = tmpdir()
+      // 生成唯一文件名（避免冲突）
+      const uniqueName = `converted_mp3_${Date.now()}_${Math.random().toString(36).slice(2)}.mp3`
+      finalOutputPath = join(tempDir, uniqueName)
+    }
+
+    // 确保输出目录存在（如果用户自定义了输出路径）
+    const outputDir = dirname(finalOutputPath)
+    if (!existsSync(outputDir)) {
+      mkdirSync(outputDir, { recursive: true })
+    }
+
+    // 构建 FFmpeg 命令（重新编码为标准 MP3 格式）
+    const ffmpegCmd = `ffmpeg -i "${inputPath}" 
+    -codec:a libmp3lame 
+    -b:a ${options.bitrate}k 
+    -ar ${options.sampleRate} 
+    -ac ${options.channels} 
+    -y 
+    -hide_banner 
+    -loglevel error 
+    "${finalOutputPath}"`.replace(/\s+/g, ' ').trim()
+
+    return new Promise((resolve, reject) => {
+      exec(ffmpegCmd, async (error, stdout, stderr) => {
+        // 错误处理
+        if (error) {
+          console.error('转换失败:', error.message)
+          if (stderr)
+            console.error('FFmpeg 错误详情:', stderr)
+          reject(new Error(`转换失败: ${error.message}`))
+          return
+        }
+
+        // 验证输出文件是否生成并返回文件路径
+        try {
+          await access(finalOutputPath)
+          // 直接返回转换后的文件路径（核心需求）
+          resolve(finalOutputPath)
+        }
+        catch {
+          reject(new Error(`转换命令执行成功，但输出文件未生成: ${finalOutputPath}`))
+        }
+      })
+    })
   }
 }

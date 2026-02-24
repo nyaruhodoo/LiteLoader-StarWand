@@ -159,7 +159,6 @@ async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
 
     if (!fileExists) {
       const pcmBuffer = await audioToPcm(buffer)
-      // QQ语音是用的这个格式？其实我不是很懂
       const silkBuffer = await silkEncode(pcmBuffer)
 
       await Utils.bufferToFile(silkBuffer, uploadPath)
