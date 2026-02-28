@@ -1,6 +1,10 @@
-// global
+// global.d.ts
 declare namespace RendererEvents {
+  const onLogin: (callback: (uid?: string) => void) => void
   const onSettingsWindowCreated: (callback: () => void) => void
+  const onSettingsWindowCreatedOnce: (callback: () => void) => void
+  const onMessageWindowCreated: (callback: () => void) => void
+  const onMessageWindowCreatedOnce: (callback: () => void) => void
 }
 
 interface IQwQNTPlugin {
@@ -14,7 +18,7 @@ interface IQwQNTPlugin {
       preload?: string
     }
   }
-}
+};
 
 declare namespace PluginSettings {
   interface ICommon {
