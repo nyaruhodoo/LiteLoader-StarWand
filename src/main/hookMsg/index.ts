@@ -1,42 +1,23 @@
 import type { WrapperInterceptors } from '@/types/wrapper/core'
 import type { MsgInfo } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
-import { writeFile } from 'node:fs/promises'
-import { RkeyImage } from './rkeyImage'
+import { Notification } from 'electron'
+import { Utils } from 'src/utils'
+import { name } from '@/manifest'
 
-export async function simpleDownload(imageUrl: string, targetPath: string) {
-  try {
-    // 1. 发起fetch请求，校验响应是否成功
-    const response = await fetch(imageUrl)
-    if (!response.ok) {
-      throw new Error(`图片请求失败，状态码：${response.status} ${response.statusText}`)
-    }
+import { ElementType } from '@/types/wrapper/core/NodeIQQNTWrapperSession/Element'
 
-    // 2. 校验响应体是否存在
-    if (!response.body) {
-      throw new Error('图片响应体为空，无法下载')
-    }
-
-    // 3. 读取响应为ArrayBuffer并转换为Buffer
-    const arrayBuffer = await response.arrayBuffer()
-    // eslint-disable-next-line node/prefer-global/buffer
-    const buffer = Buffer.from(arrayBuffer)
-
-    // 4. 写入指定路径（目录已存在，直接写文件）
-    await writeFile(targetPath, buffer)
-
-    console.log('下载完成：', targetPath)
-  }
-  catch (error) {
-    // 统一捕获错误并提示
-    const errMsg = error instanceof Error ? error.message : '未知错误'
-    console.error(`下载失败【${targetPath}】：`, errMsg)
-    throw error // 可选：抛出错误让上层处理
-  }
+/**
+ * 发送系统通知
+ */
+function showNotification(body: string) {
+  if (!Notification.isSupported())
+    return
+  const not = new Notification({
+    title: name,
+    body,
+  })
+  not.show()
 }
-
-const msgCache = new Map<string, MsgInfo>()
-const maxCacheSize = 5000
-const rkeyImage = new RkeyImage()
 
 function arkToText(msgList: MsgInfo[]) {
   for (const msgInfo of msgList) {
@@ -114,27 +95,88 @@ function arkToText(msgList: MsgInfo[]) {
   }
 }
 
-async function restoreRevokedMessage(msgList: MsgInfo[]) {
-  for (const [index, msgInfo] of msgList.entries()) {
-    if (msgInfo.elements[0]?.grayTipElement?.revokeElement) {
-      const recallMsg = msgCache.get(msgInfo.msgId)
-      if (recallMsg) {
-        for (const element of recallMsg.elements) {
-          if (element.picElement?.originImageUrl) {
-            const newImageUrl = await rkeyImage.getNewImgUrl(element.picElement.originImageUrl)
-            const newThumbPath = new Map<number, string>()
-            element.picElement.thumbPath.forEach((_, key) => {
-              newThumbPath.set(key, newImageUrl)
-            })
-            element.picElement.thumbPath = newThumbPath
-            // const path = element.picElement.thumbPath.get(0)
-            // path && await simpleDownload(newImageUrl, path)
-          }
-        }
+function msgFilter(msgInfoList: MsgInfo[]) {
+  const { messageBlock: {
+    keywordBlacklist,
+    blockVideo,
+    blockImage,
+    blockEmoji,
+    blockSolitaire,
+    blockRobot,
+    blockAtAll,
+    whitelist,
+    blockPoke,
+    blockEmojiReply,
+  } } = Utils.getConfig('main')
 
-        // @ts-expect-error  忽略错误
-        recallMsg._recallMsg = true
-        msgList[index] = recallMsg
+  return msgInfoList.filter((msgInfo) => {
+    if (msgInfo.chatType !== 2)
+      return true
+
+    if (whitelist.includes(msgInfo.peerUid))
+      return true
+
+    const botAttr = msgInfo.msgAttrs.get('22') as Record<string, unknown>
+    if (blockRobot && botAttr && botAttr.botMetaData)
+      return false
+
+    if (msgInfo.elements.length === 1) {
+      const element = msgInfo.elements[0]
+      if (blockVideo && element?.elementType === ElementType.VideoElement)
+        return false
+      if (blockImage && element?.elementType === ElementType.PicElement)
+        return false
+      if (blockEmoji && element?.elementType === ElementType.FaceElement)
+        return false
+      if (blockSolitaire && element?.elementType === ElementType.FaceElement && element.faceElement?.chainCount !== null)
+        return false
+      if ((blockPoke || blockEmojiReply) && element?.elementType === ElementType.GrayTipElement) {
+        if (blockPoke && element.grayTipElement?.subElementType === 17) {
+          return false
+        }
+        if (blockEmojiReply && element.grayTipElement?.subElementType === 12) {
+          return false
+        }
+      }
+    }
+
+    // 通用屏蔽
+    for (const element of msgInfo.elements) {
+      if (blockAtAll && element.textElement && element.textElement.atType === 1) {
+        return false
+      }
+
+      if (keywordBlacklist && element.textElement) {
+        const isBlocked = keywordBlacklist.split('&').some(text => element.textElement?.content.includes(text))
+        if (isBlocked) {
+          return false
+        }
+      }
+    }
+
+    return true
+  })
+}
+
+function msgListener(msgInfoList: MsgInfo[]) {
+  const { messageMonitor: { keyword, favoriteList, whitelist } } = Utils.getConfig('main')
+
+  for (const msgInfo of msgInfoList) {
+    if (msgInfo.chatType !== 2)
+      return
+
+    if (favoriteList && msgInfo.senderUin && favoriteList.includes(msgInfo.senderUin)) {
+      showNotification(`你暗恋的人${msgInfo.sendNickName}在${msgInfo.peerName}发送了消息`)
+      return
+    }
+
+    if (!whitelist.includes(msgInfo.peerUid) && whitelist !== '*') {
+      return
+    }
+
+    for (const element of msgInfo.elements) {
+      if (element.textElement && keyword && element.textElement.content.includes(keyword)) {
+        showNotification(`${msgInfo.peerName}检测到关键词: ${keyword}`)
       }
     }
   }
@@ -147,31 +189,25 @@ export const msgInterceptors: WrapperInterceptors = {
       return
 
     arkToText(msgInfoList)
-
-    if (msgCache.size >= maxCacheSize)
-      msgCache.clear()
-
-    msgCache.set(msgInfo.msgId, msgInfo)
+    const newMsg = msgFilter(msgInfoList)
+    // 懒得单独抽了，直接凑活写
+    msgListener(newMsg)
+    return [newMsg]
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/addKernelMsgListener/onMsgInfoListUpdate': function ([msgInfoList]) {
     const msgInfo = msgInfoList[0]
     if (!msgInfo)
       return
 
-    // 避免撤回消息被替换
-    if (msgInfo.elements.length === 1 && msgInfo.elements[0]?.grayTipElement?.revokeElement && !msgInfo.elements[0]?.grayTipElement?.revokeElement.isSelfOperate) {
-      msgInfoList.length = 0
-      return
-    }
-
-    arkToText(msgInfoList)
+    const newMsg = msgFilter(msgInfoList)
+    return [newMsg]
   },
   'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/getMsgsIncludeSelf:response': async function ({ applyRet }) {
     const res = await applyRet
 
     arkToText(res.msgList)
-
-    await restoreRevokedMessage(res.msgList)
+    const newMsg = msgFilter(res.msgList)
+    res.msgList = newMsg
 
     return res
   },
@@ -179,7 +215,8 @@ export const msgInterceptors: WrapperInterceptors = {
     const res = await applyRet
 
     arkToText(res.msgList)
-    await restoreRevokedMessage(res.msgList)
+    const newMsg = msgFilter(res.msgList)
+    res.msgList = newMsg
 
     return res
   },

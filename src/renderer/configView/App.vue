@@ -13,7 +13,7 @@ import NSwitch from './components/NSwitch.vue'
 const contextBridgeApi = window[slug] as ContextBridgeApiType
 
 const configReactive = reactive(defaultConfig)
-const { redPackTextBlacklist, groupBlacklist, senderBlacklist, randomDelay, autoSendmsg, minimumAmount, skipPwd } = toRefs(configReactive)
+const { redPackTextBlacklist, groupBlacklist, senderBlacklist, randomDelay, autoSendmsg, minimumAmount, skipPwd, messageBlock, messageMonitor } = toRefs(configReactive)
 
 ;(async () => {
   const newConfig = await Utils.getConfig('renderer')
@@ -68,6 +68,51 @@ async function openDevTools() {
     </ConfigItem>
     <ConfigItem title="跳过发言领取口令红包">
       <NSwitch v-model="skipPwd" />
+    </ConfigItem>
+  </ConfigList>
+
+  <ConfigList title="群消息屏蔽">
+    <ConfigItem title="关键字" tip="使用&进行分割">
+      <NInput v-model="messageBlock.keywordBlacklist" />
+    </ConfigItem>
+    <ConfigItem title="视频">
+      <NSwitch v-model="messageBlock.blockVideo" />
+    </ConfigItem>
+    <ConfigItem title="图片">
+      <NSwitch v-model="messageBlock.blockImage" />
+    </ConfigItem>
+    <ConfigItem title="表情">
+      <NSwitch v-model="messageBlock.blockEmoji" />
+    </ConfigItem>
+    <ConfigItem title="捏一捏">
+      <NSwitch v-model="messageBlock.blockPoke" />
+    </ConfigItem>
+    <ConfigItem title="表情回应">
+      <NSwitch v-model="messageBlock.blockEmojiReply" />
+    </ConfigItem>
+    <ConfigItem title="表情接龙">
+      <NSwitch v-model="messageBlock.blockSolitaire" />
+    </ConfigItem>
+    <ConfigItem title="机器人">
+      <NSwitch v-model="messageBlock.blockRobot" />
+    </ConfigItem>
+    <ConfigItem title="@所有人">
+      <NSwitch v-model="messageBlock.blockAtAll" />
+    </ConfigItem>
+    <ConfigItem title="白名单" tip="使用&进行分割(名单内的群将不会被屏蔽)">
+      <NInput v-model="messageBlock.whitelist" />
+    </ConfigItem>
+  </ConfigList>
+
+  <ConfigList title="群消息监听">
+    <ConfigItem title="关键字" tip="使用&进行分割">
+      <NInput v-model="messageMonitor.keyword" />
+    </ConfigItem>
+    <ConfigItem title="特别关心" tip="使用&进行分割(填写你暗恋的人Q号)">
+      <NInput v-model="messageMonitor.favoriteList" />
+    </ConfigItem>
+    <ConfigItem title="白名单" tip="使用&进行分割(只有配置群起作用，也可以选择*表示全部)">
+      <NInput v-model="messageMonitor.whitelist" />
     </ConfigItem>
   </ConfigList>
 

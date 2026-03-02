@@ -6,7 +6,7 @@ export class Utils {
   /**
    * 初始化插件配置
    */
-  static async getConfig(mode: 'renderer' | 'main' | 'preload'): Promise<ConfigType> {
+  static getConfig(mode: 'renderer' | 'main' | 'preload'): ConfigType {
     const configUtils = PluginSettings[mode]
     const oldConfig = configUtils.readConfig(slug, defaultConfig)
     const newConfig = this.mergeConfig(oldConfig, defaultConfig)

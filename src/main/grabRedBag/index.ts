@@ -183,7 +183,7 @@ export async function grabRedBag(config?: ConfigType) {
   starWand.wrapperEmitter.removeAllListeners(WrapperEventEnum.onRecvMsg)
   ipcMain.removeAllListeners(`${slug}:update`)
 
-  const newConfig = config ?? (await Utils.getConfig('main'))
+  const newConfig = config ?? (Utils.getConfig('main'))
 
   starWand.wrapperEmitter.addListener(WrapperEventEnum.onRecvMsg, async ({ params }) => {
     const msgList = params[0]
