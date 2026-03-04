@@ -95,7 +95,7 @@ function arkToText(msgList: MsgInfo[]) {
   }
 }
 
-function msgFilter(msgInfoList: MsgInfo[]) {
+function msgFilter(msgList: MsgInfo[]) {
   const { messageBlock: {
     keywordBlacklist,
     blockVideo,
@@ -109,14 +109,15 @@ function msgFilter(msgInfoList: MsgInfo[]) {
     blockEmojiReply,
   } } = Utils.getConfig('main')
 
-  return msgInfoList.filter((msgInfo) => {
+  return msgList.filter((msgInfo) => {
     if (msgInfo.chatType !== 2)
       return true
 
     if (whitelist.includes(msgInfo.peerUid))
       return true
 
-    const botAttr = msgInfo.msgAttrs.get('22') as Record<string, unknown>
+    const botAttr = msgInfo.msgAttrs.get(22) as Record<string, unknown>
+
     if (blockRobot && botAttr && botAttr.botMetaData)
       return false
 
