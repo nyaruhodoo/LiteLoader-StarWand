@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ContextBridgeApiType } from '@/types/contextBridge'
 import { defaultConfig } from 'src/defaultConfig'
 import { Utils } from 'src/utils'
 import { reactive, toRefs, watch } from 'vue'
 import { slug } from '@/manifest'
+import type { ContextBridgeApiType } from '@/types/contextBridge'
 import ConfigItem from './components/ConfigItem.vue'
 import ConfigList from './components/ConfigList.vue'
 import NInput from './components/NInput.vue'
@@ -13,33 +13,43 @@ import NSwitch from './components/NSwitch.vue'
 const contextBridgeApi = window[slug] as ContextBridgeApiType
 
 const configReactive = reactive(defaultConfig)
-const { redPackTextBlacklist, groupBlacklist, senderBlacklist, randomDelay, autoSendmsg, minimumAmount, skipPwd, messageBlock, messageMonitor } = toRefs(configReactive)
+const {
+	redPackTextBlacklist,
+	groupBlacklist,
+	senderBlacklist,
+	randomDelay,
+	autoSendmsg,
+	minimumAmount,
+	skipPwd,
+	messageBlock,
+	messageMonitor,
+} = toRefs(configReactive)
 
 ;(async () => {
-  const newConfig = await Utils.getConfig('renderer')
-  for (const key in newConfig) {
-    // @ts-expect-error  忽略错误
-    configReactive[key] = newConfig[key]
-  }
+	const newConfig = await Utils.getConfig('renderer')
+	for (const key in newConfig) {
+		// @ts-expect-error  忽略错误
+		configReactive[key] = newConfig[key]
+	}
 })()
 
 /**
  * 监听config变动
  */
 watch(configReactive, (newVal) => {
-  const copyVal = JSON.parse(JSON.stringify(newVal))
-  Utils.updateConfig(copyVal, 'renderer')
-  // 每次配置更新后通知主线程和渲染线程
-  contextBridgeApi.configUpdate(copyVal)
-  new BroadcastChannel(slug).postMessage(copyVal)
+	const copyVal = JSON.parse(JSON.stringify(newVal))
+	Utils.updateConfig(copyVal, 'renderer')
+	// 每次配置更新后通知主线程和渲染线程
+	contextBridgeApi.configUpdate(copyVal)
+	new BroadcastChannel(slug).postMessage(copyVal)
 })
 
 async function openDevTools() {
-  const res = await contextBridgeApi['starWand:session-invoke-method'](
-    'getSettingService/openUrlInIM',
-    ['https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/'],
-  )
-  Utils.log(res)
+	const port = await contextBridgeApi['starWand:get-port']()
+	const res = await contextBridgeApi['starWand:session-invoke-method']('getSettingService/openUrlInIM', [
+		`https://nyaruhodoo.github.io/qwqnt-star-wand-devtools?port=${port}`,
+	])
+	Utils.log(res)
 }
 </script>
 
@@ -90,7 +100,7 @@ async function openDevTools() {
     <ConfigItem title="表情回应">
       <NSwitch v-model="messageBlock.blockEmojiReply" />
     </ConfigItem>
-    <ConfigItem title="表情接龙">
+    <ConfigItem title="大表情">
       <NSwitch v-model="messageBlock.blockSolitaire" />
     </ConfigItem>
     <ConfigItem title="机器人">
