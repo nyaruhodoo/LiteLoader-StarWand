@@ -4,14 +4,14 @@ import { hookWrapper } from '@/main/hook/hookWrapper'
 import { grabRedBag } from './grabRedBag'
 import { msgInterceptors } from './hookMsg'
 import { msgWithUrlInterceptors } from './hookMsgWithUrl'
-import { videoFileEventInterceptors } from './hookVideoFile'
+import { sendMsgEventInterceptors } from './hookSendMsg'
 
 ;(async () => {
 	const starWand = await hookWrapper({
 		eventBlacklist: [WrapperEventEnum.sendLog, /tianshu/i],
 		eventInterceptors: {
 			...msgWithUrlInterceptors,
-			...videoFileEventInterceptors,
+			...sendMsgEventInterceptors,
 			...msgInterceptors,
 		},
 	})
@@ -85,7 +85,7 @@ import { videoFileEventInterceptors } from './hookVideoFile'
 		},
 	)
 
-	ipcMain.handle('get-port', () => {
+	ipcMain.handle('starWand:get-port', () => {
 		return starWand.debugServer.defaultPort
 	})
 

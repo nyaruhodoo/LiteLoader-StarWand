@@ -194,9 +194,10 @@ async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
 	}
 }
 
-export const videoFileEventInterceptors: WrapperInterceptors = {
+export const sendMsgEventInterceptors: WrapperInterceptors = {
 	'NodeIQQNTWrapperSession/getNTWrapperSession/getMsgService/sendMsg': (params) => {
 		if (params[1].chatType === 8) return params
+
 		if (params[2][0]?.elementType !== ElementType.FileElement) return params
 
 		const { filePath, fileSize } = params[2][0].fileElement!
