@@ -106,9 +106,6 @@ async function openDevTools() {
     <ConfigItem title="机器人">
       <NSwitch v-model="messageBlock.blockRobot" />
     </ConfigItem>
-    <ConfigItem title="@所有人">
-      <NSwitch v-model="messageBlock.blockAtAll" />
-    </ConfigItem>
     <ConfigItem title="白名单" tip="使用&进行分割(名单内的群将不会被屏蔽)">
       <NInput v-model="messageBlock.whitelist" />
     </ConfigItem>

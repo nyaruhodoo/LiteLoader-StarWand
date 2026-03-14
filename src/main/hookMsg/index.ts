@@ -108,7 +108,6 @@ function msgFilter(msgList: MsgInfo[]) {
 			blockEmoji,
 			blockSolitaire,
 			blockRobot,
-			blockAtAll,
 			whitelist,
 			blockPoke,
 			blockEmojiReply,
@@ -147,10 +146,6 @@ function msgFilter(msgList: MsgInfo[]) {
 
 		// 通用屏蔽
 		for (const element of msgInfo.elements) {
-			if (blockAtAll && element.textElement && element.textElement.atType === 1) {
-				return false
-			}
-
 			if (keywordBlacklist && element.textElement) {
 				const isBlocked = keywordBlacklist.split('&').some((text) => element.textElement?.content.includes(text))
 				if (isBlocked) {
