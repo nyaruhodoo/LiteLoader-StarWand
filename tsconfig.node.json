@@ -2,13 +2,8 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "module": "esnext",
-    "types": ["node", "electron", "@qwqnt/types/main"]
+    "types": ["node", "electron", "@qwqnt/types/main"],
+    "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "src/main/**/*",
-    "src/preload/**/*",
-    "src/*",
-    "src/types/**/*",
-    "./*"
-  ]
+  "include": ["src/main/**/*", "src/preload/**/*", "src/*", "src/types/**/*", "./*"]
 }
