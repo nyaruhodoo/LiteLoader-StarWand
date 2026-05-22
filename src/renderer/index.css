@@ -3,7 +3,7 @@
   -webkit-user-drag: none !important;
 }
 
-.user-profile-card__widgets,
+.user-profile-card__tools.no-drag-region,
 .narrow-toggler {
   display: none !important;
 }
