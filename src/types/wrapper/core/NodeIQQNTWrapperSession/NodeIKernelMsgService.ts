@@ -864,7 +864,30 @@ export interface NodeIKernelMsgService {
   queryFavEmojiByDesc: (desc: string) => any[]; // 根据描述查询收藏表情
   getHotPicInfoListSearchString: (searchString: string) => any[]; // 获取热门图片信息列表搜索字符串
   getHotPicSearchResult: (searchString: string) => any[]; // 获取热门图片搜索结果
-  getHotPicHotWords: () => any[]; // 获取热门图片热词
+  // 获取热门图片热词
+  getHotPicHotWords: (params: {
+    srcUin: string;
+    userText: string;
+    sceneType: number;
+    aioType: number;
+    guestUid: string;
+    groupCode: string;
+    guildID: string;
+    channelID: string;
+    isSupportCompose: boolean;
+  }) => WrapperAsyncResponse<{
+    rsp: {
+      resultCode: number;
+      errorMsg: string;
+      traceId: string;
+      size: number;
+      items: {
+        word: string;
+        searchNum: number;
+        itemType: number;
+      }[];
+    };
+  }>;
   getHotPicJumpInfo: () => any; // 获取热门图片跳转信息
   getEmojiResourcePath: (emojiId: string) => string; // 获取表情资源路径
   JoinDragonGroupEmoji: (emojiId: string) => void; // 加入龙组表情
