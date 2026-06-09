@@ -1,55 +1,58 @@
 <script setup lang="ts">
-import { defaultConfig } from 'src/defaultConfig'
-import { Utils } from 'src/utils'
-import { reactive, toRefs, watch } from 'vue'
-import { slug } from '@/manifest'
-import type { ContextBridgeApiType } from '@/types/contextBridge'
-import ConfigItem from './components/ConfigItem.vue'
-import ConfigList from './components/ConfigList.vue'
-import NInput from './components/NInput.vue'
-import NSwitch from './components/NSwitch.vue'
+import { defaultConfig } from "src/defaultConfig";
+import { Utils } from "src/utils";
+import { reactive, toRefs, watch } from "vue";
+import { slug } from "@/manifest";
+import type { ContextBridgeApiType } from "@/types/contextBridge";
+import ConfigItem from "./components/ConfigItem.vue";
+import ConfigList from "./components/ConfigList.vue";
+import NInput from "./components/NInput.vue";
+import NSwitch from "./components/NSwitch.vue";
 
 // @ts-expect-error  忽略错误
-const contextBridgeApi = window[slug] as ContextBridgeApiType
+const contextBridgeApi = window[slug] as ContextBridgeApiType;
 
-const configReactive = reactive(defaultConfig)
+const configReactive = reactive(defaultConfig);
 const {
-	redPackTextBlacklist,
-	groupBlacklist,
-	senderBlacklist,
-	randomDelay,
-	autoSendmsg,
-	minimumAmount,
-	skipPwd,
-	messageBlock,
-	messageMonitor,
-} = toRefs(configReactive)
+  redPackTextBlacklist,
+  groupBlacklist,
+  senderBlacklist,
+  randomDelay,
+  autoSendmsg,
+  minimumAmount,
+  skipPwd,
+  messageBlock,
+  messageMonitor,
+  emojiPath,
+  recentEmojiCountLimit,
+} = toRefs(configReactive);
 
-;(async () => {
-	const newConfig = await Utils.getConfig('renderer')
-	for (const key in newConfig) {
-		// @ts-expect-error  忽略错误
-		configReactive[key] = newConfig[key]
-	}
-})()
+(async () => {
+  const newConfig = await Utils.getConfig("renderer");
+  for (const key in newConfig) {
+    // @ts-expect-error  忽略错误
+    configReactive[key] = newConfig[key];
+  }
+})();
 
 /**
  * 监听config变动
  */
 watch(configReactive, (newVal) => {
-	const copyVal = JSON.parse(JSON.stringify(newVal))
-	Utils.updateConfig(copyVal, 'renderer')
-	// 每次配置更新后通知主线程和渲染线程
-	contextBridgeApi.configUpdate(copyVal)
-	new BroadcastChannel(slug).postMessage(copyVal)
-})
+  const copyVal = JSON.parse(JSON.stringify(newVal));
+  Utils.updateConfig(copyVal, "renderer");
+  // 每次配置更新后通知主线程和渲染线程
+  contextBridgeApi.configUpdate(copyVal);
+  new BroadcastChannel(slug).postMessage(copyVal);
+});
 
 async function openDevTools() {
-	const port = await contextBridgeApi['starWand:get-port']()
-	const res = await contextBridgeApi['starWand:session-invoke-method']('getSettingService/openUrlInIM', [
-		`https://nyaruhodoo.github.io/qwqnt-star-wand-devtools?port=${port}`,
-	])
-	Utils.log(res)
+  const port = await contextBridgeApi["starWand:get-port"]();
+  const res = await contextBridgeApi["starWand:session-invoke-method"](
+    "getSettingService/openUrlInIM",
+    [`https://nyaruhodoo.github.io/qwqnt-star-wand-devtools?port=${port}`],
+  );
+  Utils.log(res);
 }
 </script>
 
@@ -123,12 +126,22 @@ async function openDevTools() {
     </ConfigItem>
   </ConfigList>
 
+  <ConfigList title="本地表情包">
+    <ConfigItem title="表情包路径">
+      <NInput v-model="emojiPath" />
+    </ConfigItem>
+    <ConfigItem title="最近发送过的表情包数量上限">
+      <NInput v-model.number="recentEmojiCountLimit" />
+    </ConfigItem>
+  </ConfigList>
+
   <ConfigList title="杂项">
     <ConfigItem title="DevTools">
-      <a href="https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/" @click.prevent="openDevTools">在线地址</a>
+      <a href="https://nyaruhodoo.github.io/qwqnt-star-wand-devtools/" @click.prevent="openDevTools"
+        >在线地址</a
+      >
     </ConfigItem>
   </ConfigList>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

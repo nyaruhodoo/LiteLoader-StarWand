@@ -52,7 +52,7 @@ export interface KernelMsgListener {
   /**
    * 添加发送的消息时触发
    */
-  onAddSendMsg: () => void;
+  onAddSendMsg: (params: MsgInfo[]) => boolean;
 
   /**
    * 消息撤回时触发
@@ -862,8 +862,89 @@ export interface NodeIKernelMsgService {
   deleteFavEmoji: (emojiId: string) => void; // 删除收藏表情
   modifyFavEmojiDesc: (emojiId: string, desc: string) => void; // 修改收藏表情描述
   queryFavEmojiByDesc: (desc: string) => any[]; // 根据描述查询收藏表情
-  getHotPicInfoListSearchString: (searchString: string) => any[]; // 获取热门图片信息列表搜索字符串
-  getHotPicSearchResult: (searchString: string) => any[]; // 获取热门图片搜索结果
+  // 获取热门图片信息列表搜索字符串
+  getHotPicInfoListSearchString: (
+    p1: string,
+    p2: string,
+    p3: number,
+    p4: number,
+    p5: boolean,
+  ) => WrapperAsyncResponse<{
+    hotPicInfos: {
+      picId: string;
+      fileMd5: string;
+      fileType: number;
+      fileSize: string;
+      fileWidth: number;
+      fileHeight: number;
+      downloadUrl: string;
+      thumbMd5: string;
+      thumbFileSize: string;
+      thumbFileWidth: number;
+      thumbFileHeight: number;
+      thumbDownloadUrl: string;
+      picIndex: number;
+      sourceType: number;
+      thirdPartyInfo: {
+        appId: string;
+        iconUrl: string;
+        name: string;
+        jumpUrl: string;
+      };
+      path: string;
+      isExist: boolean;
+    }[];
+  }>;
+  // 获取热门图片搜索结果
+  getHotPicSearchResult: (params: {
+    srcUin: string;
+    userText: string;
+    sceneType: number;
+    aioType: number;
+    guestUid: string;
+    groupCode: string;
+    guildID: string;
+    channelID: string;
+    isSupportCompose: boolean;
+    chatType: number;
+    isSupportMall: boolean;
+    pageSize: number;
+    sessionInfo: undefined;
+  }) => WrapperAsyncResponse<{
+    rsp: {
+      resultCode: number;
+      errorMsg: string;
+      infoArray: {
+        resourceID: string;
+        imageMD5: string;
+        imageWidth: number;
+        imageHeight: number;
+        imageUrl: string;
+        imageSize: string;
+        thumbnailMD5: string;
+        thumbnailWidth: number;
+        thumbnailHeight: number;
+        thumbnailUrl: string;
+        thumbnailSize: string;
+        imageOther: string;
+        packageID: string;
+        packageType: string;
+        srcWebUrl: string;
+        srcIconUrl: string;
+        srcName: string;
+        emojiType: number;
+        textComposeInfo: null;
+        mallEmojiInfo: null;
+        path: string;
+        isExist: boolean;
+      }[];
+      other: string;
+      pageHasNext: boolean;
+      sessionInfo: Uint8Array;
+      composeEmojis: any[];
+      allowCompose: boolean;
+    };
+  }>;
   // 获取热门图片热词
   getHotPicHotWords: (params: {
     srcUin: string;
