@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "esnext",
     "types": ["node", "electron", "@qwqnt/types/main"],
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    
   },
   "include": ["src/main/**/*", "src/preload/**/*", "src/*", "src/types/**/*", "./*"]
 }
