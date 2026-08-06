@@ -11,7 +11,7 @@ import { Utils } from "src/utils";
 import { ipcMain } from "electron";
 import { ConfigType } from "src/defaultConfig";
 import { slug } from "@/manifest";
-import { RkeyImage } from "../hookMsg/rkeyImage";
+import { RkeyImage } from "../rkeyImage";
 import { starWand } from "../hook/hookWrapper";
 
 const rkeyImage = new RkeyImage();
@@ -173,6 +173,8 @@ export function initGroupManagement() {
           const picElementList = elements.filter((i) => i.picElement);
           const imgUrl = picElementList[0]?.picElement?.originImageUrl;
           if (!imgUrl) return;
+
+          console.log("检测到图片消息");
 
           const newImageUrl = await rkeyImage.getNewImgUrl(imgUrl);
           const sourcePath = picElementList[0]?.picElement?.sourcePath;

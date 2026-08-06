@@ -1,5 +1,5 @@
 import { Utils } from "src/utils";
-import https from "https";
+import { requestInRenderer } from "./randererHttp";
 
 export interface RkeyServerResponse {
   private_rkey: string;
@@ -59,40 +59,15 @@ export class RkeyImage {
   }
 
   async fetchServerRkey(): Promise<RkeyServerResponse> {
-    return new Promise((resolve, reject) => {
-      const req = https.get(
-        this.SERVER_URL,
-        {
-          agent: false,
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            Accept: "*/*",
-          },
-          timeout: 5000, // 设置 5 秒超时
-        },
-        (res) => {
-          let data = "";
-          res.on("data", (chunk) => (data += chunk));
-          res.on("end", () => {
-            try {
-              resolve(JSON.parse(data) as RkeyServerResponse);
-            } catch {
-              reject(new Error(`解析 rkey 响应 JSON 失败: ${data.slice(0, 100)}`));
-            }
-          });
-        },
-      );
-
-      req.on("error", (err) => {
-        reject(err);
-      });
-
-      req.on("timeout", () => {
-        req.destroy();
-        reject(new Error("请求 rkey 超时"));
-      });
-
-      req.end();
+    // 换用 requestInRenderer 发起请求，直接返回 T (RkeyServerResponse)
+    const response = await requestInRenderer(this.SERVER_URL, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        Accept: "*/*",
+      },
     });
+
+    return response as RkeyServerResponse;
   }
 }
