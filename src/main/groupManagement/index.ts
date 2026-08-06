@@ -214,7 +214,7 @@ export function initGroupManagement() {
     const now = Date.now();
 
     for (const rule of config.keywordAutoReplyList) {
-      if (rule.disabled || !rule.keyword || !rule.reply) continue;
+      if (!rule.enable || !rule.keyword || !rule.reply) continue;
 
       // 使用 & 分隔关键词，去除空格并统一转为小写
       const keywords = rule.keyword

@@ -89,7 +89,7 @@ export interface ConfigType {
   keywordAutoReplyList: {
     keyword: string;
     reply: string;
-    disabled?: boolean;
+    enable?: boolean;
   }[];
 
   enableOCR: boolean;

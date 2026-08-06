@@ -60,10 +60,10 @@ async function openDevTools() {
 
 // ---------------- 关键词回复逻辑 ----------------
 function addReplyRule() {
-  keywordAutoReplyList.value.push({
+  keywordAutoReplyList.value.unshift({
     keyword: "",
     reply: "",
-    disabled: false,
+    enable: true,
   });
 }
 
@@ -161,15 +161,13 @@ function removeReplyRule(index: number) {
           v-for="(item, index) in keywordAutoReplyList"
           :key="index"
           class="reply-rule-card"
-          :class="{ disabled: item.disabled }"
+          :class="{ disabled: !item.enable }"
         >
           <div class="card-header">
             <span class="rule-index">规则 #{{ index + 1 }}</span>
             <div class="card-actions">
-              <label class="switch-label">
-                <span>{{ item.disabled ? "禁用" : "启用" }}</span>
-                <NSwitch v-model="item.disabled" />
-              </label>
+              <NSwitch v-model="item.enable" />
+
               <button class="btn btn-delete" @click="removeReplyRule(index)">删除</button>
             </div>
           </div>
@@ -227,20 +225,6 @@ function removeReplyRule(index: number) {
   gap: 12px;
   max-height: 400px; /* 设置最大高度 */
   overflow-y: auto; /* 超出显示纵向滚动条 */
-}
-
-/* 优化自定义滚动条样式 */
-.reply-rules-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.reply-rules-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 3px;
-}
-
-.reply-rules-list::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .reply-rule-card {
