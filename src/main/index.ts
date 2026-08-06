@@ -6,6 +6,7 @@ import { msgInterceptors } from "./hookMsg";
 import { msgWithUrlInterceptors } from "./hookMsgWithUrl";
 import { sendMsgEventInterceptors } from "./hookSendMsg";
 import { picInterceptors } from "./hookPic";
+import { initGroupManagement } from "./groupManagement";
 
 (async () => {
   const starWand = await hookWrapper({
@@ -92,4 +93,5 @@ import { picInterceptors } from "./hookPic";
   });
 
   grabRedBag();
+  initGroupManagement();
 })();

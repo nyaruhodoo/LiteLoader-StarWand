@@ -81,6 +81,18 @@ export interface ConfigType {
   >;
   emojiPath: string;
   recentEmojiCountLimit: number;
+
+  // 需要自动回复的群组列表（&分割）
+  keywordAutoReplyGroupList: string;
+
+  // 关键词回复
+  keywordAutoReplyList: {
+    keyword: string;
+    reply: string;
+    disabled?: boolean;
+  }[];
+
+  enableOCR: boolean;
 }
 
 export const defaultConfig: ConfigType = {
@@ -115,4 +127,7 @@ export const defaultConfig: ConfigType = {
   emojiSendCount: {},
   emojiPath: "",
   recentEmojiCountLimit: 18,
+  keywordAutoReplyGroupList: "",
+  keywordAutoReplyList: [],
+  enableOCR: false,
 };
