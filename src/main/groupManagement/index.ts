@@ -1,20 +1,14 @@
 import { WrapperEventEnum } from "@/types/wrapper/eventEnum";
 import { ChatType } from "@/types/wrapper/core/NodeIQQNTWrapperSession/Element";
-import { access, mkdir, unlink } from "fs/promises";
-import { dirname } from "path";
+import { access } from "fs/promises";
 
-import https from "https";
-import http from "http";
-import { createWriteStream } from "fs";
 import { Utils } from "src/utils";
 
 import { ipcMain } from "electron";
 import { ConfigType } from "src/defaultConfig";
 import { slug } from "@/manifest";
-import { RkeyImage } from "../rkeyImage";
-import { starWand } from "../hook/hookWrapper";
 
-const rkeyImage = new RkeyImage();
+import { starWand } from "../hook/hookWrapper";
 
 // 回复冷却缓存 Map：Key 为 `群号:回复内容`，Value 为上一次发送的时间戳(ms)
 const replyCooldownMap = new Map<string, number>();
@@ -86,45 +80,6 @@ async function isFileExists(filePath: string) {
   }
 }
 
-/**
- * 下载图片到本地指定路径
- */
-async function downloadImage(url: string, savePath: string) {
-  // 先创建文件夹（防止目录不存在报错）
-  const dirPath = dirname(savePath);
-  await mkdir(dirPath, { recursive: true });
-
-  return new Promise((resolve, reject) => {
-    // 根据协议选择 http / https
-    const client = url.startsWith("https") ? https : http;
-
-    client
-      .get(url, (res) => {
-        // 非200状态码直接报错
-        if ((res.statusCode ?? 0) < 200 || (res.statusCode ?? 0) >= 300) {
-          return reject(new Error(`下载失败，状态码：${res.statusCode}`));
-        }
-
-        // 创建写入流
-        const fileStream = createWriteStream(savePath);
-        res.pipe(fileStream);
-
-        fileStream.on("finish", () => {
-          fileStream.close();
-          resolve(savePath);
-        });
-
-        fileStream.on("error", (err) => {
-          unlink(savePath).catch(() => {}); // 下载失败删除残留文件
-          reject(err);
-        });
-      })
-      .on("error", (err) => {
-        reject(err);
-      });
-  });
-}
-
 let config = Utils.getConfig("main");
 
 export function initGroupManagement() {
@@ -139,7 +94,7 @@ export function initGroupManagement() {
     const msgInfo = params[0][0];
     if (!msgInfo || msgInfo.chatType !== 2) return;
 
-    const { chatType, senderUid, peerUid, elements, senderUin, sendMemberName } = msgInfo;
+    const { chatType, senderUid, peerUid, elements, senderUin, sendMemberName, msgId } = msgInfo;
 
     // 不处理机器人消息
     const botAttr = msgInfo.msgAttrs.get(22) as Record<string, unknown>;
@@ -174,9 +129,6 @@ export function initGroupManagement() {
           const imgUrl = picElementList[0]?.picElement?.originImageUrl;
           if (!imgUrl) return;
 
-          console.log("检测到图片消息");
-
-          const newImageUrl = await rkeyImage.getNewImgUrl(imgUrl);
           const sourcePath = picElementList[0]?.picElement?.sourcePath;
 
           if (!sourcePath) return;
@@ -184,7 +136,19 @@ export function initGroupManagement() {
           const exists = await isFileExists(sourcePath);
           if (!exists) {
             console.log("本地文件不存在，开始下载图片...");
-            await downloadImage(newImageUrl, sourcePath);
+            starWand.Session?.getMsgService().downloadRichMedia({
+              fileModelId: "0",
+              downSourceType: 0,
+              triggerType: 1,
+              msgId,
+              chatType,
+              peerUid,
+              elementId: picElementList[0]?.elementId || "",
+              thumbSize: 0,
+              downloadType: 2,
+              filePath: sourcePath,
+            });
+            await Utils.wait(2000);
             console.log("图片下载完成，保存路径：", sourcePath);
           } else {
             console.log("本地文件已存在，无需下载：", sourcePath);

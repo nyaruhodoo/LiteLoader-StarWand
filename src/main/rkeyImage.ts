@@ -1,6 +1,4 @@
 import { Utils } from "src/utils";
-import { requestInRenderer } from "./randererHttp";
-
 export interface RkeyServerResponse {
   private_rkey: string;
   group_rkey: string;
@@ -59,8 +57,7 @@ export class RkeyImage {
   }
 
   async fetchServerRkey(): Promise<RkeyServerResponse> {
-    // 换用 requestInRenderer 发起请求，直接返回 T (RkeyServerResponse)
-    const response = await requestInRenderer(this.SERVER_URL, {
+    const response = await fetch(this.SERVER_URL, {
       method: "GET",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -68,6 +65,6 @@ export class RkeyImage {
       },
     });
 
-    return response as RkeyServerResponse;
+    return response.json();
   }
 }
