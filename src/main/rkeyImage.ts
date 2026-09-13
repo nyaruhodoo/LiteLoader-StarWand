@@ -8,7 +8,7 @@ export interface RkeyServerResponse {
 
 export class RkeyImage {
   // 世上好人还是多
-  SERVER_URL = "https://llob.linyuchen.net/rkey";
+  SERVER_URL = "https://ah.cdms.vip:28883/rkey/compat";
   IMAGE_HTTP_HOST_NT = "https://multimedia.nt.qq.com.cn";
   IMAGE_HTTP_HOST = "https://gchat.qpic.cn";
   rkeyData = {

@@ -96,6 +96,7 @@ starWand.wrapperEmitter.addListener(WrapperEventEnum.sendMsg, async ({ params })
       const customEmoji = config.emojiSendCount[picInfo.md5HexStr];
       if (customEmoji) {
         customEmoji.sendTime = Date.now();
+        customEmoji.sourcePath = picInfo.sourcePath;
       } else {
         // 新增记录
         config.emojiSendCount[picInfo.md5HexStr] = {
@@ -107,8 +108,9 @@ starWand.wrapperEmitter.addListener(WrapperEventEnum.sendMsg, async ({ params })
   }
 
   const emojiEntries = Object.entries(config.emojiSendCount);
-  const top16Emojis = emojiEntries.slice(0, config.recentEmojiCountLimit);
-  config.emojiSendCount = Object.fromEntries(top16Emojis);
+  emojiEntries.sort((a, b) => b[1].sendTime - a[1].sendTime);
+  const topEmojis = emojiEntries.slice(0, config.recentEmojiCountLimit);
+  config.emojiSendCount = Object.fromEntries(topEmojis);
 
   Utils.updateConfig(config, "main");
 });
