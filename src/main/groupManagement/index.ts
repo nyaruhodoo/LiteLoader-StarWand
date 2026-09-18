@@ -145,7 +145,7 @@ export function initGroupManagement() {
               peerUid,
               elementId: picElementList[0]?.elementId || "",
               thumbSize: 0,
-              downloadType: 2,
+              downloadType: 1,
               filePath: sourcePath,
             });
             await Utils.wait(2000);
