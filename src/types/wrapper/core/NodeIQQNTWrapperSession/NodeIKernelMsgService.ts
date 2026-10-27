@@ -530,7 +530,16 @@ export interface NodeIKernelMsgService {
   forwardRichMsgInVist: (msgId: string, targetId: string) => void; // 在Vist中转发富文本消息
   forwardFile: (fileId: string, targetId: string) => void; // 转发文件
   multiForwardMsg: (msgIds: string[], targetId: string) => void; // 多条消息转发
-  multiForwardMsgWithComment: (msgIds: string[], targetId: string, comment: string) => void; // 带评论多条消息转发
+  multiForwardMsgWithComment: (
+    msgIds: {
+      msgId: string;
+      senderShowName: string;
+    }[],
+    a: PeerInfo,
+    b: PeerInfo,
+    c: unknown[],
+    d: Map<unknown, unknown>,
+  ) => void; // 带评论多条消息转发
   deleteRecallMsg: (msgId: string) => void; // 删除撤回的消息
   deleteRecallMsgForLocal: (msgId: string) => void; // 为本地删除撤回的消息
   addLocalGrayTipMsg: (msg: string) => void; // 添加本地灰色提示消息
