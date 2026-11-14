@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { defaultConfig } from "src/defaultConfig";
-import { Utils } from "src/utils";
-import { reactive, toRefs, watch } from "vue";
-import { slug } from "@/manifest";
-import type { ContextBridgeApiType } from "@/types/contextBridge";
-import ConfigItem from "./components/ConfigItem.vue";
-import ConfigList from "./components/ConfigList.vue";
-import NInput from "./components/NInput.vue";
-import NSwitch from "./components/NSwitch.vue";
+import { reactive, toRefs, watch } from 'vue'
+
+import { defaultConfig } from '@/defaultConfig'
+import { pluginId } from '@/pluginMeta'
+import type { ContextBridgeApiType } from '@/types/contextBridge'
+import { Utils } from '@/utils'
+
+import ConfigItem from './components/ConfigItem.vue'
+import ConfigList from './components/ConfigList.vue'
+import NInput from './components/NInput.vue'
+import NSwitch from './components/NSwitch.vue'
 
 // @ts-expect-error 忽略错误
-const contextBridgeApi = window[slug] as ContextBridgeApiType;
+const contextBridgeApi = window[pluginId] as ContextBridgeApiType
 
-const configReactive = reactive(defaultConfig);
+const configReactive = reactive(defaultConfig)
 const {
   redPackTextBlacklist,
   groupBlacklist,
@@ -28,47 +30,47 @@ const {
   keywordAutoReplyGroupList,
   keywordAutoReplyList,
   enableOCR,
-} = toRefs(configReactive);
+} = toRefs(configReactive)
 
-(async () => {
-  const newConfig = await Utils.getConfig("renderer");
+;(async () => {
+  const newConfig = await Utils.getConfig('renderer')
   for (const key in newConfig) {
     // @ts-expect-error 忽略错误
-    configReactive[key] = newConfig[key];
+    configReactive[key] = newConfig[key]
   }
-})();
+})()
 
 /**
  * 监听config变动
  */
 watch(configReactive, (newVal) => {
-  const copyVal = JSON.parse(JSON.stringify(newVal));
-  Utils.updateConfig(copyVal, "renderer");
+  const copyVal = JSON.parse(JSON.stringify(newVal))
+  Utils.updateConfig(copyVal, 'renderer')
   // 每次配置更新后通知主线程和渲染线程
-  contextBridgeApi.configUpdate(copyVal);
-  new BroadcastChannel(slug).postMessage(copyVal);
-});
+  contextBridgeApi.configUpdate(copyVal)
+  new BroadcastChannel(pluginId).postMessage(copyVal)
+})
 
 async function openDevTools() {
-  const port = await contextBridgeApi["starWand:get-port"]();
-  const res = await contextBridgeApi["starWand:session-invoke-method"](
-    "getSettingService/openUrlInIM",
+  const port = await contextBridgeApi['starWand:get-port']()
+  const res = await contextBridgeApi['starWand:session-invoke-method'](
+    'getSettingService/openUrlInIM',
     [`https://nyaruhodoo.github.io/qwqnt-star-wand-devtools?port=${port}`],
-  );
-  Utils.log(res);
+  )
+  Utils.log(res)
 }
 
 // ---------------- 关键词回复逻辑 ----------------
 function addReplyRule() {
   keywordAutoReplyList.value.unshift({
-    keyword: "",
-    reply: "",
+    keyword: '',
+    reply: '',
     enable: true,
-  });
+  })
 }
 
 function removeReplyRule(index: number) {
-  keywordAutoReplyList.value.splice(index, 1);
+  keywordAutoReplyList.value.splice(index, 1)
 }
 </script>
 

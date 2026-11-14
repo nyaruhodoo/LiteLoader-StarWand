@@ -1,9 +1,18 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "esnext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["@qwqnt/types/renderer"],
-    "ignoreDeprecations": "6.0"
+    "allowJs": true,
+    "checkJs": false,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.web.tsbuildinfo"
   },
-  "include": ["src/renderer/**/*", "src/renderer/**/*.vue", "src/*", "src/types/**/*"]
+  "include": [
+    "src/renderer/**/*",
+    "src/types/*.ts",
+    "src/types/*.d.ts",
+    "src/*.ts",
+    "./package.json"
+  ],
+  "exclude": ["src/types/wrapper"]
 }

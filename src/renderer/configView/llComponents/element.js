@@ -18,11 +18,11 @@ export class BaseElement extends HTMLElement {
     this.update()
   }
 
-  getTemplate() { }
+  getTemplate() {}
 
-  getStyles() { }
+  getStyles() {}
 
-  update() { }
+  update() {}
 
   constructor() {
     super()
@@ -62,7 +62,7 @@ export class BaseElement extends HTMLElement {
 
   setType(type) {
     if (!['primary', 'secondary'].includes(type)) {
-      throw new Error('Type must be \'primary\' or \'secondary\'')
+      throw new Error("Type must be 'primary' or 'secondary'")
     }
     this.setAttribute('data-type', type)
   }
@@ -73,7 +73,7 @@ export class BaseElement extends HTMLElement {
 
   setDirection(direction) {
     if (!['column', 'row'].includes(direction)) {
-      throw new Error('Direction must be \'column\' or \'row\'')
+      throw new Error("Direction must be 'column' or 'row'")
     }
     this.setAttribute('data-direction', direction)
   }

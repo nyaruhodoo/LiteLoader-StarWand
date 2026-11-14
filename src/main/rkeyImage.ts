@@ -1,70 +1,71 @@
-import { Utils } from "src/utils";
+import { Utils } from '@/utils'
 export interface RkeyServerResponse {
-  private_rkey: string;
-  group_rkey: string;
-  expired_time: number;
-  updated_time: string;
+  private_rkey: string
+  group_rkey: string
+  expired_time: number
+  updated_time: string
 }
 
 export class RkeyImage {
   // 世上好人还是多
-  SERVER_URL = "https://ah.cdms.vip:28883/rkey/compat";
-  IMAGE_HTTP_HOST_NT = "https://multimedia.nt.qq.com.cn";
-  IMAGE_HTTP_HOST = "https://gchat.qpic.cn";
+  SERVER_URL = 'https://ah.cdms.vip:28883/rkey/compat'
+  IMAGE_HTTP_HOST_NT = 'https://multimedia.nt.qq.com.cn'
+  IMAGE_HTTP_HOST = 'https://gchat.qpic.cn'
   rkeyData = {
-    group_rkey: "",
-    private_rkey: "",
+    group_rkey: '',
+    private_rkey: '',
     expired_time: 0,
-  };
+  }
 
   async getRkey() {
     if (this.isExpired()) {
       try {
-        this.rkeyData = await this.fetchServerRkey();
+        this.rkeyData = await this.fetchServerRkey()
       } catch (e) {
-        Utils.log("获取rkey失败", e);
+        Utils.log('获取rkey失败', e)
       }
     }
-    return this.rkeyData;
+    return this.rkeyData
   }
 
   async getNewImgUrl(originImageUrl: string) {
-    const parsedUrl = new URL(this.IMAGE_HTTP_HOST_NT + originImageUrl);
-    const imageAppid = parsedUrl.searchParams.get("appid");
-    const isNewPic = imageAppid && ["1406", "1407"].includes(imageAppid);
+    const parsedUrl = new URL(this.IMAGE_HTTP_HOST_NT + originImageUrl)
+    const imageAppid = parsedUrl.searchParams.get('appid')
+    const isNewPic = imageAppid && ['1406', '1407'].includes(imageAppid)
 
     if (isNewPic) {
-      const rkey = parsedUrl.searchParams.get("rkey");
+      const rkey = parsedUrl.searchParams.get('rkey')
       if (rkey) {
-        return this.IMAGE_HTTP_HOST_NT + originImageUrl;
+        return this.IMAGE_HTTP_HOST_NT + originImageUrl
       }
-      const rkeyData = await this.getRkey();
+      const rkeyData = await this.getRkey()
 
       return (
         this.IMAGE_HTTP_HOST_NT +
         originImageUrl +
-        rkeyData[imageAppid === "1406" ? "private_rkey" : "group_rkey"]
-      );
+        rkeyData[imageAppid === '1406' ? 'private_rkey' : 'group_rkey']
+      )
     } else {
       // 老的图片url，不需要rkey
-      return this.IMAGE_HTTP_HOST + originImageUrl;
+      return this.IMAGE_HTTP_HOST + originImageUrl
     }
   }
 
   isExpired() {
-    const now = new Date().getTime() / 1000;
-    return now > this.rkeyData.expired_time;
+    const now = new Date().getTime() / 1000
+    return now > this.rkeyData.expired_time
   }
 
   async fetchServerRkey(): Promise<RkeyServerResponse> {
     const response = await fetch(this.SERVER_URL, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        Accept: "*/*",
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        Accept: '*/*',
       },
-    });
+    })
 
-    return response.json();
+    // node 环境下 Response.json() 返回 unknown，这里按接口约定断言
+    return (await response.json()) as RkeyServerResponse
   }
 }

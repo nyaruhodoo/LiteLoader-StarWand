@@ -18,7 +18,7 @@ interface IQwQNTPlugin {
       preload?: string
     }
   }
-};
+}
 
 declare namespace PluginSettings {
   interface ICommon {

@@ -1,79 +1,79 @@
-import type { ConfigType } from "src/defaultConfig";
-import { defaultConfig } from "src/defaultConfig";
-import { slug } from "@/manifest";
+import type { ConfigType } from '@/defaultConfig'
+import { defaultConfig } from '@/defaultConfig'
+import { pluginId } from '@/pluginMeta'
 
 export class Utils {
   /**
    * 初始化插件配置
    */
-  static getConfig(mode: "renderer" | "main" | "preload"): ConfigType {
-    const configUtils = PluginSettings[mode];
-    const oldConfig = configUtils.readConfig(slug, defaultConfig);
-    const newConfig = this.mergeConfig(oldConfig, defaultConfig);
-    return newConfig;
+  static getConfig(mode: 'renderer' | 'main' | 'preload'): ConfigType {
+    const configUtils = PluginSettings[mode]
+    const oldConfig = configUtils.readConfig(pluginId, defaultConfig)
+    const newConfig = this.mergeConfig(oldConfig, defaultConfig)
+    return newConfig
   }
 
   /**
    * 更新插件配置
    */
-  static async updateConfig(config: ConfigType, mode: "renderer" | "main" | "preload") {
-    const configUtils = PluginSettings[mode];
-    configUtils.writeConfig(slug, config);
+  static async updateConfig(config: ConfigType, mode: 'renderer' | 'main' | 'preload') {
+    const configUtils = PluginSettings[mode]
+    configUtils.writeConfig(pluginId, config)
   }
 
   /**
    * 合并配置项
    */
   static mergeConfig(oldConfig: Record<string, any>, newConfig: ConfigType) {
-    const targetObj = structuredClone(newConfig);
+    const targetObj = structuredClone(newConfig)
 
     for (const [key, value] of Object.entries(oldConfig)) {
       // 废弃的属性
-      if (!Object.hasOwn(targetObj, key)) continue;
+      if (!Object.hasOwn(targetObj, key)) continue
 
       // 类型已更新
       if (
         // @ts-expect-error  忽略此处错误
         Object.prototype.toString.call(value) !== Object.prototype.toString.call(targetObj[key])
       ) {
-        continue;
+        continue
       }
 
       // 合并数组
       if (Array.isArray(value)) {
         // @ts-expect-error  忽略此处错误
-        targetObj[key] = [...new Set([...value, ...targetObj[key]])];
-        continue;
+        targetObj[key] = [...new Set([...value, ...targetObj[key]])]
+        continue
       }
 
       // 基本值以本地配置为准
       // @ts-expect-error  忽略此处错误
-      targetObj[key] = value;
+      targetObj[key] = value
     }
 
-    return targetObj;
+    return targetObj
   }
 
   /**
    * 带有插件标识的Log
    */
   static log(...args: unknown[]) {
-    console.log(`${slug}:`, ...args);
+    console.log(`${pluginId}:`, ...args)
   }
 
   /**
    * 生成随机整数
    */
   static randomInteger(min: number, max: number) {
-    const rand = min + Math.random() * (max + 1 - min);
-    return Math.floor(rand);
+    const rand = min + Math.random() * (max + 1 - min)
+    return Math.floor(rand)
   }
 
   /**
    * 返回一个指定时间后决议为 resolve 的 promise
    */
   static wait(millisecond: number) {
-    if (millisecond <= 0) return;
-    return new Promise((resolve) => setTimeout(resolve, millisecond));
+    if (millisecond <= 0) return
+    return new Promise((resolve) => setTimeout(resolve, millisecond))
   }
 }

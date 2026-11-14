@@ -101,7 +101,7 @@ export class List extends BaseElement {
     const collapsible = this.getCollapsible()
     const dividers = this.querySelectorAll('setting-divider')
     const children = this._slot.assignedElements()
-    dividers.forEach(node => node.remove())
+    dividers.forEach((node) => node.remove())
     children.forEach((node, index) => {
       const divider = document.createElement('setting-divider')
       const dividerDirection = direction === 'column' ? 'row' : 'column'
@@ -113,8 +113,7 @@ export class List extends BaseElement {
       })
       if (shouldInsertBefore) {
         node.before(divider)
-      }
-      else if (shouldInsertAfter) {
+      } else if (shouldInsertAfter) {
         node.after(divider)
       }
     })

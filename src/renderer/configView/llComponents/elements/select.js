@@ -18,8 +18,7 @@ export class Select extends BaseElement {
       if (!this._context.classList.contains('hidden')) {
         window.addEventListener('pointerup', pointerup)
         this._context.style.width = getComputedStyle(this).getPropertyValue('width')
-      }
-      else {
+      } else {
         window.removeEventListener('pointerup', pointerup)
         this._context.style.width = null
       }
@@ -33,14 +32,16 @@ export class Select extends BaseElement {
         }
         event.target.setSelected(!event.target.getSelected())
         this._title.value = event.target.textContent
-        this.dispatchEvent(new CustomEvent('selected', {
-          bubbles: true,
-          composed: true,
-          detail: {
-            name: event.target.textContent,
-            value: event.target.getValue(),
-          },
-        }))
+        this.dispatchEvent(
+          new CustomEvent('selected', {
+            bubbles: true,
+            composed: true,
+            detail: {
+              name: event.target.textContent,
+              value: event.target.getValue(),
+            },
+          }),
+        )
       }
     })
     this._title.value = this.querySelector('setting-option[is-selected]')?.textContent

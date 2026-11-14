@@ -18,6 +18,6 @@ const model = defineModel<string | number>()
       width: inputProps.width,
     }"
   >
-    <input v-model="model" class="text-center" v-bind="inputProps">
+    <input v-model="model" class="text-center" v-bind="inputProps" />
   </div>
 </template>

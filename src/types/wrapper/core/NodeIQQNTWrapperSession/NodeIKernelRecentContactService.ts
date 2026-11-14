@@ -157,7 +157,6 @@ export interface NodeIKernelRecentContactService {
    * @param contactId - 联系人 ID。
    * @param extBuf - 扩展数据缓冲。
    */
-  // eslint-disable-next-line node/prefer-global/buffer
   updateRecentContactExtBufForUI: (contactId: string, extBuf: Buffer<ArrayBuffer>) => void
 
   /**

@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "vue"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "prefer-const": "error",
+    "eslint/no-underscore-dangle": "off",
+    "typescript/consistent-return": "off",
+    "typescript/no-extraneous-class": "off",
+    "import/no-unassigned-import": "off",
+    "promise/always-return": "off",
+    "unicorn/require-post-message-target-origin": "off"
+  },
+  "env": {
+    "builtin": true
+  },
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["src/types/wrapper/**"],
+      "rules": {
+        "typescript/no-redundant-type-constituents": "off"
+      }
+    },
+    {
+      "files": ["src/types/**"],
+      "rules": {
+        "typescript/no-unnecessary-type-parameters": "off"
+      }
+    },
+    {
+      "files": ["src/main/**"],
+      "rules": {
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
+    {
+      "files": ["src/main/hook/**"],
+      "rules": {
+        "eslint/no-shadow": "off"
+      }
+    },
+    {
+      "files": ["src/renderer/configView/llComponents/**"],
+      "rules": {
+        "unicorn/consistent-function-scoping": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/**", ".workbuddy/**"]
+}

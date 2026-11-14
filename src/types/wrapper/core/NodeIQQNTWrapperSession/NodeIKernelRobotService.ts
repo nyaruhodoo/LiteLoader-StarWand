@@ -40,7 +40,10 @@ export interface NodeIKernelRobotService {
   getGroupRobotProfile: (groupId: string) => Promise<any>
 
   /** 带请求的获取群组机器人资料 */
-  fetchGroupRobotProfileWithReq: (params: { fetchType: number, robotUin: string }) => WrapperAsyncResponse<{
+  fetchGroupRobotProfileWithReq: (params: {
+    fetchType: number
+    robotUin: string
+  }) => WrapperAsyncResponse<{
     robotData: {
       robotUin: string // 机器人唯一ID
       name: string // 机器人名称
@@ -155,7 +158,7 @@ export interface NodeIKernelRobotService {
   }) => WrapperAsyncResponse<{
     response: {
       version: number
-      robotUinRanges: { minUin: string, maxUin: string }[]
+      robotUinRanges: { minUin: string; maxUin: string }[]
     }
   }>
 

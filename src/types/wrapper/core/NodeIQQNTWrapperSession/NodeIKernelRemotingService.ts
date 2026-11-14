@@ -47,7 +47,6 @@ export interface NodeIKernelRemotingService {
    * 设置穿透缓冲区，用于传递远程连接所需的特殊数据。
    * @param buffer - 穿透数据缓冲区。
    */
-  // eslint-disable-next-line node/prefer-global/buffer
   setPenetrateBuffer: (buffer: Buffer) => void
 
   /**

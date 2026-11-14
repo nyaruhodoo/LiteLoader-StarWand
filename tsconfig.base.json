@@ -1,22 +1,19 @@
 {
-  "noEmit": true,
   "compilerOptions": {
-    "composite": true,
-    "target": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "paths": {
-      "*": ["./*"],
-      "@/main/*": ["./src/main/*"],
-      "@/renderer/*": ["./src/renderer/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/manifest": ["./manifest.json"],
-      "@/package": ["./package.json"]
-    },
+    "composite": true,
+    "noEmit": true,
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@package": ["./package.json"]
+    }
   }
 }

@@ -30,7 +30,7 @@ export interface NodeIKernelTipOffService {
    */
   getPskey: (
     p1: string[],
-    p2: boolean
+    p2: boolean,
   ) => WrapperAsyncResponse<{
     domainPskeyMap: Map<string, string>
   }>

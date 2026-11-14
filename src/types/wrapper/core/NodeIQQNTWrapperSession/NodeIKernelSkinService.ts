@@ -72,7 +72,7 @@ export interface NodeIKernelSkinService {
   previewTheme: (
     p1: number,
     p2: undefined,
-    p3: undefined
+    p3: undefined,
   ) => {
     tokenMap: Map<
       string,

@@ -23,7 +23,9 @@ type Filter<T extends string> = T extends `${infer _}/${string}`
     : T
   : never
 // 用于取出路径中的第0项
-type SplitPath<Path extends string> = Path extends `${infer Head}/${infer Tail}` ? [Head, Tail] : [Path, '']
+type SplitPath<Path extends string> = Path extends `${infer Head}/${infer Tail}`
+  ? [Head, Tail]
+  : [Path, '']
 
 /**
  * 深度遍历对象类型(其实只针对于Wrapper)
@@ -40,8 +42,14 @@ export type DeepPath<
   : T extends object
     ? {
         [K in keyof T]-?: K extends string
-          ? | Filter<JoinPath<Prefix, K>>
-          | DeepPath<ReturnTypeOrSelf<T[K], K>, JoinPath<Prefix, K>, IncrementDepth<Depth>, MaxDepth>
+          ?
+              | Filter<JoinPath<Prefix, K>>
+              | DeepPath<
+                  ReturnTypeOrSelf<T[K], K>,
+                  JoinPath<Prefix, K>,
+                  IncrementDepth<Depth>,
+                  MaxDepth
+                >
           : never
       }[keyof T]
     : never

@@ -29,7 +29,7 @@ export interface NodeIQQNTWrapperEngine {
       onInstallFinished: () => Promise<void>
       onUpdateGeneralFlag: () => void
       onGetOfflineMsg: () => void
-    }
+    },
   ) => boolean
   readyToShow: () => void
   initWithMobileConfig: (config: any) => void
