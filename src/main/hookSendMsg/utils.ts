@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { access, constants, copyFile, mkdir, writeFile } from 'node:fs/promises'
+import { access, copyFile, mkdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, extname } from 'node:path'
 
 import { blackImgBase64 } from './blackImg'
@@ -112,36 +112,43 @@ export class Utils {
   }
 
   /**
+   * 判断目标文件是否已存在且非空
+   *
+   * QQ 的富媒体存储路径由文件 md5 推导，同名文件内容必然一致，
+   * 所以「已存在」等价于「之前已经写入成功」，无需重复复制或转码。
+   */
+  static async targetFileExists(filePath: string) {
+    try {
+      const fileStat = await stat(filePath)
+      return fileStat.isFile() && fileStat.size > 0
+    } catch {
+      // 文件不存在（ENOENT）或无权访问，都当作需要重新写入
+      return false
+    }
+  }
+
+  /**
    * 检查目录是否存在后复制文件
+   * 目标文件已存在时直接跳过，避免重复复制
    */
   static async copyFileWithDirCheck(oldPath: string, newPath: string) {
-    // 获取目标文件路径中的目录部分
-    const dir = dirname(newPath)
-    try {
-      // 尝试获取目录信息，如果目录不存在会抛出错误
-      await access(dir, constants.F_OK)
-    } catch {
-      // 如果目录不存在，就创建它
-      await mkdir(dir, { recursive: true })
-    }
-    // 目录存在或者已经成功创建后，执行文件复制操作
+    if (await Utils.targetFileExists(newPath)) return
+
+    // mkdir 带 recursive 时目录已存在不会报错，无需再单独判断
+    await mkdir(dirname(newPath), { recursive: true })
     await copyFile(oldPath, newPath)
   }
 
+  /**
+   * 把 buffer 写入文件，目标文件已存在时直接跳过
+   */
   static async bufferToFile(buffer: Buffer, filePath: string): Promise<void> {
+    if (await Utils.targetFileExists(filePath)) return
+
     try {
-      // 1. 解析 filePath 的目录部分
-      const dir = dirname(filePath)
-
-      // 2. 检测目录是否存在，不存在则递归创建
       // recursive: true 确保即使多级目录不存在（如 a/b/c）也能一并创建
-      await mkdir(dir, { recursive: true })
-
-      // 3. 把 buffer 写入文件
-      // 这会自动处理文件名和后缀
+      await mkdir(dirname(filePath), { recursive: true })
       await writeFile(filePath, buffer)
-
-      console.log(`文件已成功保存至: ${filePath}`)
     } catch (error) {
       console.error('保存文件时出错:', error)
       throw error

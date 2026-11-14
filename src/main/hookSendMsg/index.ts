@@ -1,4 +1,4 @@
-import { access, constants, readFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { basename, dirname, extname, join } from 'node:path'
 
 import { audioToPcm, silkEncode } from '@acidify/codec'
@@ -155,19 +155,9 @@ async function file2Audio(sendMsg: Parameters<NodeIKernelMsgService['sendMsg']>)
     // 转 silk 需要 pcm，而 pcm 的长度本身就等价于时长，所以这里总是解码一次
     const pcmBuffer = await audioToPcm(buffer)
 
-    // --- 新增逻辑：检查文件是否存在 ---
-    let fileExists = false
-    try {
-      await access(uploadPath, constants.F_OK)
-      fileExists = true
-    } catch {
-      fileExists = false
-    }
-
-    if (!fileExists) {
-      const silkBuffer = await silkEncode(pcmBuffer)
-
-      await Utils.bufferToFile(silkBuffer, uploadPath)
+    // 目标文件已存在（路径由 md5 推导，同名即同内容）说明之前转过，跳过重复的转码与写入
+    if (!(await Utils.targetFileExists(uploadPath))) {
+      await Utils.bufferToFile(await silkEncode(pcmBuffer), uploadPath)
     }
 
     const pttElement = {
