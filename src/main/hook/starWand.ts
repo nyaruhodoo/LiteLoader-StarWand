@@ -46,10 +46,36 @@ function getTargetKeyword(str: string) {
   return 'Function'
 }
 
+/**
+ * Service 返回的是实例，直接塞给调试面板序列化没意义（大概率循环引用 / 巨量字段），
+ * 改成记录它身上有哪些方法；非对象原样返回，避免对 null 取原型抛错
+ */
+function listInstanceMethods(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null) return value
+
+  const proto = Object.getPrototypeOf(value) as object | null
+  return proto ? Object.getOwnPropertyNames(proto) : []
+}
+
 export class StarWand {
   wrapperEmitter = new EventEmitter<WrapperEventMap>()
   // 非必须的情况下不给很详细的类型，因为真的很卡 /(ㄒoㄒ)/~~
   #listenerMap = new Map<string, Set<Record<string, (...args: unknown[]) => void>>>()
+  /**
+   * Service 实例的缓存：原始实例 → (rootKey → 对应的 Proxy)
+   *
+   * Service 是「先取实例、再调方法」的模式，同一个实例会被反复取用
+   * （典型如 `Session.getMsgService()`），每次重新包一层 Proxy 纯属浪费，
+   * 而且会让同一个 Service 在多次调用间不是同一个对象身份。
+   *
+   * 只服务于 Service：Listener 等场景必须每次都是新对象
+   * （重复 add 就是要挂多个监听器，复用会把它们合并成一个）。
+   *
+   * 用 WeakMap 作第一层，原始实例被回收后缓存自动释放，不会把 QQ 的实例吊住。
+   * 第二层按 rootKey 区分，是因为同一个实例可能挂在不同的调用路径下，
+   * 而 key 前缀会进入调试面板的 callPath 和拦截器匹配，不能串味。
+   */
+  #serviceInstanceCache = new WeakMap<Record<string, any>, Map<string, Record<string, any>>>()
 
   constructor(
     public debugServer: NodeDebugger,
@@ -98,10 +124,7 @@ export class StarWand {
       this.debugServer.sendTrace({
         callPath: key,
         requestParams: argArray,
-        responseParams:
-          type === 'Service'
-            ? Object.getOwnPropertyNames(Object.getPrototypeOf(applyRet))
-            : applyRet,
+        responseParams: type === 'Service' ? listInstanceMethods(applyRet) : applyRet,
         type,
         status,
       })
@@ -110,9 +133,33 @@ export class StarWand {
 
   /**
    * Hook Wrapper 中的实例对象
+   *
+   * 默认每次都新建 Proxy；只有 `cache: true`（Service 专用）才复用同一实例的包装结果。
    */
-  hookInstance({ instance, rootKey }: { instance: Record<string, any>; rootKey: string }) {
-    return new Proxy(instance, {
+  hookInstance({
+    instance,
+    rootKey,
+    cache = false,
+  }: {
+    instance: Record<string, any>
+    rootKey: string
+    /** 只给 Service 用：同一实例 + 同一 rootKey 复用同一个 Proxy */
+    cache?: boolean
+  }) {
+    // 只有对象才能被代理。Service 在未登录等场景下可能返回 undefined，
+    // 直接 new Proxy 会抛 TypeError，把调用方一起带崩
+    if (typeof instance !== 'object' || instance === null) return instance
+
+    // Promise 不是 Service 实例（异步取 Service 时拿到的是 Promise 本身），
+    // 代理它只会把 then/catch 也包一层，语义混乱且没有收益
+    if (instance instanceof Promise) return instance
+
+    if (cache) {
+      const cachedProxy = this.#serviceInstanceCache.get(instance)?.get(rootKey)
+      if (cachedProxy) return cachedProxy
+    }
+
+    const proxy = new Proxy(instance, {
       get: (_, p: string, receiver) => {
         const targetProperty = Reflect.get(instance, p, receiver)
         if (typeof targetProperty !== 'function') return targetProperty
@@ -220,11 +267,12 @@ export class StarWand {
                 })
               })() ?? applyRet
 
-            // Service 需额外处理
+            // Service 需额外处理：同一实例复用同一个 Proxy（cache: true）
             if (key.endsWith('Service')) {
               applyRet = this.hookInstance({
                 instance: applyRet as Record<string, unknown>,
                 rootKey: key,
+                cache: true,
               })
             }
 
@@ -276,6 +324,18 @@ export class StarWand {
         }
       },
     })
+
+    // 只有 Service 才写缓存；其余场景（Listener、Wrapper 实例）每次都是全新包装
+    if (cache) {
+      const cachedByRootKey = this.#serviceInstanceCache.get(instance)
+      if (cachedByRootKey) {
+        cachedByRootKey.set(rootKey, proxy)
+      } else {
+        this.#serviceInstanceCache.set(instance, new Map([[rootKey, proxy]]))
+      }
+    }
+
+    return proxy
   }
 
   /**
