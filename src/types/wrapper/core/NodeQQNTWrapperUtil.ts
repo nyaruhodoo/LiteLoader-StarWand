@@ -1,6 +1,14 @@
 export interface NodeQQNTWrapperUtil {
   new (...args: unknown[]): Record<string, unknown>
-  getNTUserDataInfoConfig: () => string
-  emptyWorkingSet: (p1: number) => void
-  pathIsReadableAndWriteable: 0 | 1
+  pathIsReadableAndWriteable: (path: string, p2: 1) => 0 | 1
+  createThumbnailImage: (
+    typr: 'flashtransfer',
+    path1: string,
+    path2: string,
+    p3: {
+      width: number
+      height: number
+    },
+    p4: 'jpeg' | 'png',
+  ) => WrapperAsyncResponse
 }
