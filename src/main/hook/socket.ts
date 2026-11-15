@@ -6,14 +6,50 @@ import { Server } from 'socket.io'
 
 import { Utils } from '@/utils'
 
+import type { SerializedValue, SerializeOptions } from './serialize'
+import { encodeValue, SERIALIZED_VERSION } from './serialize'
+
+/**
+ * 调用方传入的原始数据（未编码）。
+ * 这里刻意保留 `unknown`，让调用方随便丢什么进来都行，
+ * 编码交给 encodeValue 兜底。
+ */
 export interface FnTracePayload {
   callTime?: number
   callPath?: string
   type?: 'Function' | 'AsyncFunction' | 'Service' | 'Listener'
   status?: 'ok' | 'error' | 'cancel'
-  requestParams?: unknown[] // 序列化后的字符串
-  responseParams?: unknown // 序列化后的字符串
+  requestParams?: unknown
+  responseParams?: unknown
   id?: string
+}
+
+/**
+ * 真正发到网页端的结构（已编码）。
+ *
+ * 与 FnTracePayload 的区别只有一点：`requestParams` / `responseParams`
+ * 从任意 JS 值变成了信封树，能安全穿过 socket.io 的 JSON 序列化。
+ */
+export interface FnTraceEvent {
+  /** 线上格式版本，前端据此决定渲染逻辑 */
+  v: number
+  id: string
+  callTime: number
+  callPath?: string
+  type: NonNullable<FnTracePayload['type']>
+  status: NonNullable<FnTracePayload['status']>
+  /** 单次编码是否发生了截断，前端可给个提示角标 */
+  truncated?: boolean
+  requestParams: SerializedValue
+  responseParams: SerializedValue
+}
+
+export interface ExecuteResultEvent {
+  id: string
+  ok: boolean
+  /** 执行结果 / 错误对象的信封树 */
+  result: SerializedValue
+  durationMs: number
 }
 
 export class NodeDebugger {
@@ -21,9 +57,14 @@ export class NodeDebugger {
   private mainSocket: Socket | null = null
   public defaultPort: number = 3666 // 默认端口（可自定义）
 
+  /** 编码预算，可按需在初始化前调大 */
+  public encodeOptions: SerializeOptions = {}
+
   // 本地缓存队列，最大支持 200 条
-  private traceQueue: Array<Record<string, unknown>> = []
+  private traceQueue: FnTraceEvent[] = []
   private readonly MAX_QUEUE_SIZE = 200
+  /** 队列溢出时被丢弃的条数，恢复连接后告知前端，避免「数据凭空消失」 */
+  private droppedCount = 0
 
   constructor() {
     // 初始化服务器（自动找可用端口）
@@ -43,31 +84,64 @@ export class NodeDebugger {
       id = crypto.randomUUID(),
     } = options
 
-    const payload = {
-      callTime: Date.now(),
-      callPath,
-      type,
-      status,
-      requestParams: inspect(requestParams, {
-        depth: null,
-        maxArrayLength: null,
-      }),
-      responseParams: inspect(responseParams, {
-        depth: null,
-        maxArrayLength: null,
-      }),
-      id,
+    // 未连接且队列已满：先丢弃，连编码都省掉
+    if (
+      (!this.mainSocket || !this.mainSocket.connected) &&
+      this.traceQueue.length >= this.MAX_QUEUE_SIZE
+    ) {
+      this.traceQueue.shift()
+      this.droppedCount += 1
+    }
+
+    /**
+     * 整个编码过程必须容错。
+     * 这是在 QQ 的 API 调用链内部同步执行的，任何异常都会顺着
+     * 调用栈污染到宿主程序，调试功能再重要也不能带崩 QQ。
+     */
+    let event: FnTraceEvent
+    try {
+      const request = encodeValue(requestParams, this.encodeOptions)
+      const response = encodeValue(responseParams, this.encodeOptions)
+
+      event = {
+        v: SERIALIZED_VERSION,
+        id,
+        callTime: Date.now(),
+        callPath,
+        type,
+        status,
+        truncated: isTruncated(request) || isTruncated(response) || undefined,
+        requestParams: request,
+        responseParams: response,
+      }
+    } catch (err) {
+      Utils.log('⚠️ 序列化调用数据失败，已跳过该条记录', err)
+      return
     }
 
     if (this.mainSocket && this.mainSocket.connected) {
       // Socket 已连接，直接推送
-      this.mainSocket.emit('fn-trace', payload)
+      this.emit('fn-trace', event)
     } else {
-      // Socket 未就绪，入队缓存
-      if (this.traceQueue.length >= this.MAX_QUEUE_SIZE) {
-        this.traceQueue.shift() // 超过 200 条时丢弃最老的一条
-      }
-      this.traceQueue.push(payload)
+      // Socket 未就绪，入队缓存（上面已保证不会超限）
+      this.traceQueue.push(event)
+    }
+  }
+
+  /**
+   * 统一出口：集中处理连接状态与序列化异常。
+   *
+   * socket.io 的 emit 在遇到无法序列化的值时是可能抛错的，
+   * 这里兜一层，避免一条脏数据打断整个调试通道。
+   */
+  private emit(event: string, payload: unknown): void {
+    const socket = this.mainSocket
+    if (!socket || !socket.connected) return
+
+    try {
+      socket.emit(event, payload)
+    } catch (err) {
+      console.error(`❌ 推送 ${event} 失败：`, inspect(err, { depth: 3, colors: true }))
     }
   }
 
@@ -75,48 +149,55 @@ export class NodeDebugger {
    * 刷新并推送队列中的缓存数据
    */
   private flushTraceQueue(): void {
-    if (!this.mainSocket || this.traceQueue.length === 0) return
+    if (!this.mainSocket || !this.mainSocket.connected) return
+
+    if (this.droppedCount > 0) {
+      this.emit('fn-trace-dropped', { count: this.droppedCount })
+      this.droppedCount = 0
+    }
+
+    if (this.traceQueue.length === 0) return
 
     Utils.log(`📦 正在向网页调试端推送 ${this.traceQueue.length} 条缓存数据...`)
     while (this.traceQueue.length > 0) {
       const payload = this.traceQueue.shift()
-      if (payload) {
-        this.mainSocket.emit('fn-trace', payload)
-      }
+      if (payload) this.emit('fn-trace', payload)
     }
   }
 
-  private async runDynamicCode(code: string): Promise<void> {
+  private async runDynamicCode(code: string, requestId: string): Promise<void> {
     if (!this.mainSocket) return
 
-    // Utils.log(`[Remote Execute]: ${code}`)
+    const startAt = Date.now()
 
     try {
       // oxlint-disable-next-line typescript/no-implied-eval -- 调试服务端的核心能力就是执行网页端传来的代码
       const fn = new Function(`return (async () => { ${code.trim()} })()`)
 
-      const res = await fn()
+      const res: unknown = await fn()
 
+      // 本地控制台保留 inspect 的可读性，线上走结构化信封
       Utils.log(`[Remote Execute]:`)
-      console.log(
-        inspect(res, {
-          depth: null,
-          colors: true,
-        }),
-      )
+      console.log(inspect(res, { depth: null, colors: true }))
 
-      this.mainSocket.emit('execute-result', {
-        success: 0,
-        res,
-      })
+      const result: ExecuteResultEvent = {
+        id: requestId,
+        ok: true,
+        result: encodeValue(res, this.encodeOptions),
+        durationMs: Date.now() - startAt,
+      }
+      this.emit('execute-result', result)
     } catch (err) {
       console.error(`\n❌ [Remote Execute Error]:`)
       console.error(inspect(err, { depth: null, colors: true }))
 
-      this.mainSocket.emit('execute-result', {
-        success: 1,
-        res: err instanceof Error ? err.message : String(err),
-      })
+      const result: ExecuteResultEvent = {
+        id: requestId,
+        ok: false,
+        result: encodeValue(err, this.encodeOptions),
+        durationMs: Date.now() - startAt,
+      }
+      this.emit('execute-result', result)
     }
   }
 
@@ -182,13 +263,42 @@ export class NodeDebugger {
 
       socket.on('disconnect', () => {
         Utils.log('📴 网页调试端已断开')
-        this.mainSocket = null
+        // 只在自己仍是当前连接时才清空，避免后连接的端被先断开的顶掉
+        if (this.mainSocket?.id === socket.id) this.mainSocket = null
       })
 
       // 接收前端发送的代码字符串
-      socket.on('execute-code', (code: string) => {
-        void this.runDynamicCode(code)
+      socket.on('execute-code', (payload: unknown) => {
+        // 兼容「裸字符串」和「带 id 的对象」两种写法
+        if (typeof payload === 'string') {
+          void this.runDynamicCode(payload, crypto.randomUUID())
+          return
+        }
+
+        const rec = payload as { code?: unknown; id?: unknown } | null
+        if (rec && typeof rec.code === 'string') {
+          void this.runDynamicCode(
+            rec.code,
+            typeof rec.id === 'string' ? rec.id : crypto.randomUUID(),
+          )
+        }
       })
     })
   }
+}
+
+/** 判断编码结果里是否出现了截断标记，用于前端打提示 */
+function isTruncated(node: SerializedValue): boolean {
+  if (node.t === 'cut') return true
+  if (node.t === 'str') return node.len !== undefined
+  if (node.t === 'arr' || node.t === 'set')
+    return node.more !== undefined || node.v.some(isTruncated)
+  if (node.t === 'map') {
+    return node.more !== undefined || node.v.some(([k, v]) => isTruncated(k) || isTruncated(v))
+  }
+  if (node.t === 'obj') {
+    return node.more !== undefined || Object.values(node.v).some(isTruncated)
+  }
+
+  return false
 }
