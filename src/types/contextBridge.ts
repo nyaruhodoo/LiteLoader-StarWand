@@ -10,5 +10,5 @@ export interface ContextBridgeApiType {
     error: Error | string
     data?: unknown
   }>
-  'starWand:get-port': () => Promise<number>
+  'starWand:get-debug-info': () => Promise<{ port: number; token: string }>
 }

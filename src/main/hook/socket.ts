@@ -6,8 +6,16 @@ import { Server } from 'socket.io'
 
 import { Utils } from '@/utils'
 
+import type { GuardOptions } from './auth'
+import { createAuthGuard, DEBUG_TOKEN, DEFAULT_ALLOWED_ORIGINS } from './auth'
 import type { SerializedValue, SerializeOptions } from './serialize'
 import { encodeValue, SERIALIZED_VERSION } from './serialize'
+
+/** 调试端连接所需的信息，由渲染层拼进 DevTools 地址 */
+export interface DebugInfo {
+  port: number
+  token: string
+}
 
 /**
  * 调用方传入的原始数据（未编码）。
@@ -56,6 +64,24 @@ export class NodeDebugger {
   private io: Server | undefined
   private mainSocket: Socket | null = null
   public defaultPort: number = 3666 // 默认端口（可自定义）
+
+  /**
+   * 本次 QQ 启动期内的会话密钥。
+   * 只会通过 IPC 交给渲染层拼进 DevTools 地址，不会出现在任何日志里。
+   */
+  public readonly token: string = DEBUG_TOKEN
+
+  /**
+   * 允许连接的来源。默认只放行官方 DevTools 站点与本地开发端口，
+   * 需要自定义部署时往这里 push 即可。
+   */
+  public allowedOrigins: (string | RegExp)[] = [...DEFAULT_ALLOWED_ORIGINS]
+
+  /** 鉴权失败次数，仅用于提示「有人在戳端口」 */
+  private authFailures = 0
+
+  /** 端口探测是异步的，用它通知「链接信息已就绪」 */
+  private readonly readySignal = Promise.withResolvers<void>()
 
   /** 编码预算，可按需在初始化前调大 */
   public encodeOptions: SerializeOptions = {}
@@ -146,6 +172,25 @@ export class NodeDebugger {
   }
 
   /**
+   * 供渲染层获取连接信息（实际端口 + 本次启动的会话密钥）。
+   *
+   * 密钥只在这里被取出，走 IPC 直达插件自己的设置页，
+   * 不会写进日志、也不会出现在任何广播里。
+   */
+  public async getDebugInfo(): Promise<DebugInfo> {
+    // 端口探测是异步的，等它确定下来再给链接，否则可能把 3666 这个初始猜测发出去
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, 3000)
+      void this.readySignal.promise.then(() => {
+        clearTimeout(timer)
+        resolve()
+      })
+    })
+
+    return { port: this.defaultPort, token: this.token }
+  }
+
+  /**
    * 刷新并推送队列中的缓存数据
    */
   private flushTraceQueue(): void {
@@ -233,11 +278,36 @@ export class NodeDebugger {
       if (available) {
         // 找到可用端口，创建服务器
         this.io = new Server(currentPort, {
-          cors: { origin: '*' },
+          // 只对白名单来源放开跨域；WebSocket 本身不受 CORS 约束，
+          // 真正的准入判断在下面的 authGuard 里
+          cors: { origin: this.allowedOrigins },
         })
+
+        this.io.use(
+          createAuthGuard({
+            token: this.token,
+            allowedOrigins: this.allowedOrigins,
+            onReject: (reason, detail) => {
+              this.authFailures += 1
+              const text =
+                reason === 'origin'
+                  ? `来源不在白名单内：${detail}`
+                  : `令牌校验失败（${detail}）`
+
+              Utils.log(`⛔ 拒绝调试端连接：${text}，累计 ${this.authFailures} 次`)
+
+              // 被反复戳端口时给个明确提示，避免用户以为面板坏了
+              if (this.authFailures === 5) {
+                Utils.log('💡 若非本人操作，请检查是否有其他程序在扫描本机调试端口')
+              }
+            },
+          } satisfies GuardOptions),
+        )
+
         Utils.log(`✅ 调试服务器启动成功，端口：${currentPort}`)
         this.setupSocketListeners() // 绑定 socket 事件
         this.defaultPort = currentPort
+        this.readySignal.resolve()
         return
       }
 
@@ -247,6 +317,7 @@ export class NodeDebugger {
     }
 
     // 达到最大重试次数仍未找到可用端口
+    this.readySignal.resolve()
     throw new Error(`❌ 无法启动调试服务器：从 ${startPort} 开始的 ${maxRetry} 个端口均被占用`)
   }
 

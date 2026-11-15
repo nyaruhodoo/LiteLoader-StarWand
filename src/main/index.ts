@@ -90,8 +90,12 @@ void (async () => {
     },
   )
 
-  ipcMain.handle('starWand:get-port', () => {
-    return starWand.debugServer.defaultPort
+  /**
+   * 把调试端的连接信息交给插件自己的设置页。
+   * 令牌只在主进程生成并保管，渲染层只是借来拼一次链接。
+   */
+  ipcMain.handle('starWand:get-debug-info', () => {
+    return starWand.debugServer.getDebugInfo()
   })
 
   void grabRedBag()

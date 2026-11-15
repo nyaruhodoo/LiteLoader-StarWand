@@ -52,10 +52,16 @@ watch(configReactive, (newVal) => {
 })
 
 async function openDevTools() {
-  const port = await contextBridgeApi['starWand:get-port']()
+  // 端口和本次启动的会话密钥一起取，密钥由主进程生成、只用于这一次链接
+  const { port, token } = await contextBridgeApi['starWand:get-debug-info']()
+
+  const url = new URL('https://nyaruhodoo.github.io/qwqnt-star-wand-devtools')
+  url.searchParams.set('port', String(port))
+  url.searchParams.set('token', token)
+
   const res = await contextBridgeApi['starWand:session-invoke-method'](
     'getSettingService/openUrlInIM',
-    [`https://nyaruhodoo.github.io/qwqnt-star-wand-devtools?port=${port}`],
+    [url.toString()],
   )
   Utils.log(res)
 }

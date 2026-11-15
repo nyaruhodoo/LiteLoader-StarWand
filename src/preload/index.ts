@@ -16,8 +16,8 @@ const contextBridgeApi: ContextBridgeApiType = {
 
     return res
   },
-  'starWand:get-port': async () => {
-    const res = await ipcRenderer.invoke('starWand:get-port')
+  'starWand:get-debug-info': async () => {
+    const res = await ipcRenderer.invoke('starWand:get-debug-info')
     return res
   },
 }
